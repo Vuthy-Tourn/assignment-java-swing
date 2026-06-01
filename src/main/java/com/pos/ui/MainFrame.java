@@ -183,6 +183,7 @@ public class MainFrame extends JFrame {
             case "STOCK"    -> stockPanel.refresh();
             case "ORDERS"   -> orderPanel.refresh();
             case "USERS"    -> userPanel.refresh();
+            case "SETTINGS" -> settingsPanel.loadSettings();
             case "DASHBOARD" -> {
                 if (dashboardPanel != null) dashboardPanel.refresh();
             }
