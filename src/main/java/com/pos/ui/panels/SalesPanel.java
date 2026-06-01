@@ -39,7 +39,7 @@ public class SalesPanel extends JPanel {
 
     public SalesPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -48,7 +48,7 @@ public class SalesPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)));
         JLabel title = new JLabel("Sales / Checkout");
         title.setFont(UIConstants.FONT_TITLE);
@@ -91,7 +91,7 @@ public class SalesPanel extends JPanel {
         searchField.setFont(UIConstants.FONT_BODY);
         searchField.putClientProperty("JTextField.placeholderText", "Search products...");
         searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filterProducts(); }
@@ -114,7 +114,7 @@ public class SalesPanel extends JPanel {
         });
 
         JScrollPane scroll = new JScrollPane(productList);
-        scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
+        scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER_COLOR));
         panel.add(scroll, BorderLayout.CENTER);
 
         RoundedButton addBtn = new RoundedButton("Add to Cart", RoundedButton.Style.SUCCESS);
@@ -131,7 +131,7 @@ public class SalesPanel extends JPanel {
         panel.setBorder(BorderFactory.createEmptyBorder(12, 8, 12, 12));
 
         JLabel cartTitle = new JLabel("Cart");
-        cartTitle.setFont(UIConstants.FONT_HEADER);
+        cartTitle.setFont(UIConstants.FONT_HEADING);
         panel.add(cartTitle, BorderLayout.NORTH);
 
         // Cart table
@@ -235,14 +235,14 @@ public class SalesPanel extends JPanel {
 
     private JLabel totalLbl(String text) {
         JLabel l = new JLabel(text);
-        l.setFont(UIConstants.FONT_HEADER);
+        l.setFont(UIConstants.FONT_HEADING);
         return l;
     }
 
     private JLabel totalValLbl(String text) {
         JLabel l = new JLabel(text, SwingConstants.RIGHT);
         l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(UIConstants.PRIMARY);
+        l.setForeground(UIConstants.ACCENT);
         return l;
     }
 
@@ -400,8 +400,8 @@ public class SalesPanel extends JPanel {
                 JPanel right = new JPanel(new GridLayout(2, 1));
                 right.setOpaque(false);
                 JLabel price = new JLabel("$" + p.getSellingPrice(), SwingConstants.RIGHT);
-                price.setFont(UIConstants.FONT_HEADER);
-                price.setForeground(UIConstants.PRIMARY);
+                price.setFont(UIConstants.FONT_HEADING);
+                price.setForeground(UIConstants.ACCENT);
                 int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
                 JLabel stock = new JLabel("Stock: " + qty, SwingConstants.RIGHT);
                 stock.setFont(UIConstants.FONT_SMALL);

@@ -23,7 +23,7 @@ public class StockPanel extends JPanel {
 
     public StockPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -32,7 +32,7 @@ public class StockPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)));
 
         JLabel title = new JLabel("Stock Management");
@@ -83,7 +83,7 @@ public class StockPanel extends JPanel {
                         c.setBackground(new Color(254, 242, 242));
                         setForeground(UIConstants.DANGER);
                     } else {
-                        c.setBackground(row % 2 == 0 ? Color.WHITE : UIConstants.BG_LIGHT);
+                        c.setBackground(row % 2 == 0 ? Color.WHITE : UIConstants.BORDER_COLOR);
                         setForeground(UIConstants.TEXT_PRIMARY);
                     }
                 }
@@ -94,13 +94,13 @@ public class StockPanel extends JPanel {
 
         JPanel tableWrapper = new JPanel(new BorderLayout());
         tableWrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
-        tableWrapper.setBackground(UIConstants.BG_LIGHT);
+        tableWrapper.setBackground(UIConstants.CONTENT_BG);
         tableWrapper.add(StyledTable.inScrollPane((StyledTable) table), BorderLayout.CENTER);
         add(tableWrapper, BorderLayout.CENTER);
 
         // Bottom buttons
         JPanel actionBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        actionBar.setBackground(UIConstants.BG_LIGHT);
+        actionBar.setBackground(UIConstants.CONTENT_BG);
 
         RoundedButton stockInBtn = new RoundedButton("Stock In", RoundedButton.Style.SUCCESS);
         stockInBtn.addActionListener(e -> showAdjustDialog("IN"));
@@ -153,7 +153,7 @@ public class StockPanel extends JPanel {
 
         c.gridy = 0; c.gridwidth = 2;
         JLabel productLbl = new JLabel("Product: " + stock.getProductName());
-        productLbl.setFont(UIConstants.FONT_HEADER);
+        productLbl.setFont(UIConstants.FONT_HEADING);
         form.add(productLbl, c);
 
         c.gridy = 1;

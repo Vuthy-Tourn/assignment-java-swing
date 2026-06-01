@@ -24,7 +24,7 @@ public class DashboardPanel extends JPanel {
 
     public DashboardPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
         refresh();
     }
@@ -33,7 +33,7 @@ public class DashboardPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)
         ));
 
@@ -48,18 +48,18 @@ public class DashboardPanel extends JPanel {
         add(topBar, BorderLayout.NORTH);
 
         JPanel content = new JPanel(new BorderLayout(0, 18));
-        content.setBackground(UIConstants.BG_LIGHT);
+        content.setBackground(UIConstants.CONTENT_BG);
         content.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
 
         JPanel cards = new JPanel(new GridLayout(1, 4, 16, 16));
-        cards.setBackground(UIConstants.BG_LIGHT);
+        cards.setBackground(UIConstants.CONTENT_BG);
 
         productsValue = new JLabel("0");
         ordersValue = new JLabel("0");
         revenueValue = new JLabel("$0.00");
         lowStockValue = new JLabel("0");
 
-        cards.add(createCard("Total Products", productsValue, UIConstants.PRIMARY));
+        cards.add(createCard("Total Products", productsValue, UIConstants.ACCENT));
         cards.add(createCard("Total Orders", ordersValue, UIConstants.SUCCESS));
         cards.add(createCard("Today Revenue", revenueValue, UIConstants.WARNING));
         cards.add(createCard("Low Stock", lowStockValue, UIConstants.DANGER));
@@ -67,7 +67,7 @@ public class DashboardPanel extends JPanel {
         content.add(cards, BorderLayout.NORTH);
 
         JPanel charts = new JPanel(new GridLayout(1, 2, 16, 16));
-        charts.setBackground(UIConstants.BG_LIGHT);
+        charts.setBackground(UIConstants.CONTENT_BG);
 
         revenueChart = new LineChartPanel("Revenue - Last 7 Days");
         categoryChart = new BarChartPanel("Products by Category");
@@ -84,12 +84,13 @@ public class DashboardPanel extends JPanel {
         JPanel card = new JPanel(new BorderLayout(0, 8));
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.CONTENT_BG
+                ),
                 BorderFactory.createEmptyBorder(18, 18, 18, 18)
         ));
 
         JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(UIConstants.FONT_HEADER);
+        titleLabel.setFont(UIConstants.FONT_TITLE);
         titleLabel.setForeground(UIConstants.TEXT_MUTED);
 
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
@@ -105,7 +106,7 @@ public class DashboardPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
         panel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)
         ));
         panel.add(chart, BorderLayout.CENTER);
@@ -149,7 +150,7 @@ public class DashboardPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            g2.setFont(UIConstants.FONT_HEADER);
+            g2.setFont(UIConstants.FONT_HEADING);
             g2.setColor(UIConstants.TEXT_PRIMARY);
             g2.drawString(title, 12, 22);
 
@@ -176,7 +177,7 @@ public class DashboardPanel extends JPanel {
                 max = BigDecimal.ONE;
             }
 
-            g2.setColor(UIConstants.BORDER);
+            g2.setColor(UIConstants.BORDER_COLOR);
             g2.drawLine(left, top, left, top + chartH);
             g2.drawLine(left, top + chartH, left + chartW, top + chartH);
 
@@ -192,7 +193,7 @@ public class DashboardPanel extends JPanel {
                 int x = left + (size == 1 ? chartW / 2 : i * chartW / (size - 1));
                 int y = top + chartH - (int) ((value / maxValue) * chartH);
 
-                g2.setColor(UIConstants.PRIMARY);
+                g2.setColor(UIConstants.ACCENT);
 
                 if (prevX != -1) {
                     g2.drawLine(prevX, prevY, x, y);
@@ -238,7 +239,7 @@ public class DashboardPanel extends JPanel {
             int w = getWidth();
             int h = getHeight();
 
-            g2.setFont(UIConstants.FONT_HEADER);
+            g2.setFont(UIConstants.FONT_HEADING);
             g2.setColor(UIConstants.TEXT_PRIMARY);
             g2.drawString(title, 12, 22);
 
@@ -260,7 +261,7 @@ public class DashboardPanel extends JPanel {
             int max = data.values().stream().max(Integer::compareTo).orElse(1);
             if (max == 0) max = 1;
 
-            g2.setColor(UIConstants.BORDER);
+            g2.setColor(UIConstants.BORDER_COLOR);
             g2.drawLine(left, top, left, top + chartH);
             g2.drawLine(left, top + chartH, left + chartW, top + chartH);
 

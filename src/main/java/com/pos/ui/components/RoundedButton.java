@@ -22,7 +22,7 @@ public class RoundedButton extends JButton {
         setFont(UIConstants.FONT_BODY);
         setForeground(Color.WHITE);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        setPreferredSize(new Dimension(getPreferredSize().width + 20, UIConstants.BTN_HEIGHT));
+        setPreferredSize(new Dimension(getPreferredSize().width + 20, getPreferredSize().height + 20));
 
         Color finalHoverColor = hoverColor;
         addMouseListener(new MouseAdapter() {
@@ -44,7 +44,7 @@ public class RoundedButton extends JButton {
             case DANGER   -> { bgColor = UIConstants.DANGER; hoverColor = new Color(185, 28, 28); }
             case SECONDARY -> { bgColor = new Color(107, 114, 128); hoverColor = new Color(75, 85, 99); }
             case WARNING  -> { bgColor = UIConstants.WARNING; hoverColor = new Color(161, 98, 7); }
-            default       -> { bgColor = UIConstants.PRIMARY; hoverColor = UIConstants.PRIMARY_DARK; }
+            default       -> { bgColor = UIConstants.ACCENT; hoverColor = UIConstants.ACCENT; }
         }
     }
 

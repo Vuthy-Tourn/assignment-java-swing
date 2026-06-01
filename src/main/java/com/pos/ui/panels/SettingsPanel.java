@@ -22,7 +22,7 @@ public class SettingsPanel extends JPanel {
 
     public SettingsPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -30,7 +30,7 @@ public class SettingsPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)));
         JLabel title = new JLabel("Settings");
         title.setFont(UIConstants.FONT_TITLE);
@@ -40,7 +40,7 @@ public class SettingsPanel extends JPanel {
         JPanel formCard = new JPanel(new GridBagLayout());
         formCard.setBackground(Color.WHITE);
         formCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(24, 28, 24, 28)));
 
         GridBagConstraints c = new GridBagConstraints();
@@ -66,17 +66,17 @@ public class SettingsPanel extends JPanel {
         loadSettings();
 
         JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        wrapper.setBackground(UIConstants.BG_LIGHT);
+        wrapper.setBackground(UIConstants.CONTENT_BG);
         wrapper.setBorder(BorderFactory.createEmptyBorder(24, 0, 0, 0));
         formCard.setMaximumSize(new Dimension(500, 500));
         JPanel sized = new JPanel(new BorderLayout());
-        sized.setBackground(UIConstants.BG_LIGHT);
+        sized.setBackground(UIConstants.CONTENT_BG);
         sized.setBorder(BorderFactory.createEmptyBorder(24, 80, 0, 80));
         sized.add(formCard, BorderLayout.CENTER);
         add(sized, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
-        btnPanel.setBackground(UIConstants.BG_LIGHT);
+        btnPanel.setBackground(UIConstants.CONTENT_BG);
         RoundedButton saveBtn = new RoundedButton("Save Settings", RoundedButton.Style.SUCCESS);
         saveBtn.setPreferredSize(new Dimension(180, 38));
         saveBtn.addActionListener(e -> saveSettings());
@@ -88,7 +88,7 @@ public class SettingsPanel extends JPanel {
         JTextField f = new JTextField(24);
         f.setFont(UIConstants.FONT_BODY);
         f.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         return f;
     }
@@ -97,8 +97,8 @@ public class SettingsPanel extends JPanel {
         c.gridy = row; c.gridx = 0; c.gridwidth = 2;
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(UIConstants.PRIMARY);
-        lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER));
+        lbl.setForeground(UIConstants.ACCENT);
+        lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR));
         form.add(lbl, c);
         c.gridwidth = 1;
     }

@@ -29,7 +29,7 @@ public class OrderPanel extends JPanel {
 
     public OrderPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -37,7 +37,7 @@ public class OrderPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)
         ));
 
@@ -102,13 +102,13 @@ public class OrderPanel extends JPanel {
 
         JPanel tableWrapper = new JPanel(new BorderLayout());
         tableWrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
-        tableWrapper.setBackground(UIConstants.BG_LIGHT);
+        tableWrapper.setBackground(UIConstants.CONTENT_BG);
         tableWrapper.add(StyledTable.inScrollPane((StyledTable) table), BorderLayout.CENTER);
 
         add(tableWrapper, BorderLayout.CENTER);
 
         JPanel bottomBar = new JPanel(new BorderLayout());
-        bottomBar.setBackground(UIConstants.BG_LIGHT);
+        bottomBar.setBackground(UIConstants.CONTENT_BG);
         bottomBar.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
 
         JPanel leftBottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
@@ -124,7 +124,7 @@ public class OrderPanel extends JPanel {
         rightBottom.setOpaque(false);
 
         JLabel revLabel = new JLabel("Total Revenue:");
-        revLabel.setFont(UIConstants.FONT_HEADER);
+        revLabel.setFont(UIConstants.FONT_HEADING);
 
         totalRevenueLabel = new JLabel("$0.00");
         totalRevenueLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -292,8 +292,8 @@ public class OrderPanel extends JPanel {
         totals.add(new JLabel(String.format("Discount: -$%.2f", safeAmount(order.getDiscountAmount()))));
 
         JLabel finalLbl = new JLabel(String.format("Final: $%.2f", safeAmount(order.getFinalAmount())));
-        finalLbl.setFont(UIConstants.FONT_HEADER);
-        finalLbl.setForeground(UIConstants.PRIMARY);
+        finalLbl.setFont(UIConstants.FONT_HEADING);
+        finalLbl.setForeground(UIConstants.ACCENT);
 
         totals.add(finalLbl);
 
