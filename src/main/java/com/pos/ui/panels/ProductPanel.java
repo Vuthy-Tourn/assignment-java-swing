@@ -28,7 +28,7 @@ public class ProductPanel extends JPanel {
 
     public ProductPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -36,7 +36,7 @@ public class ProductPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)
         ));
 
@@ -102,13 +102,13 @@ public class ProductPanel extends JPanel {
 
         JPanel tableWrapper = new JPanel(new BorderLayout());
         tableWrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
-        tableWrapper.setBackground(UIConstants.BG_LIGHT);
+        tableWrapper.setBackground(UIConstants.BORDER_COLOR);
         tableWrapper.add(StyledTable.inScrollPane((StyledTable) table), BorderLayout.CENTER);
 
         add(tableWrapper, BorderLayout.CENTER);
 
         JPanel actionBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        actionBar.setBackground(UIConstants.BG_LIGHT);
+        actionBar.setBackground(UIConstants.CONTENT_BG);
 
         RoundedButton editBtn = new RoundedButton("Edit", RoundedButton.Style.SECONDARY);
         editBtn.addActionListener(e -> {
@@ -241,7 +241,7 @@ public class ProductPanel extends JPanel {
 
         JLabel imagePreview = new JLabel("No Image", SwingConstants.CENTER);
         imagePreview.setPreferredSize(new Dimension(140, 140));
-        imagePreview.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
+        imagePreview.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER_COLOR));
         imagePreview.setOpaque(true);
         imagePreview.setBackground(new Color(245, 245, 245));
 
