@@ -12,7 +12,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
@@ -348,9 +347,11 @@ public class ProductPanel extends JPanel {
      * gradient-filled circle with the product's initial letter is shown.
      * Supports three path-loading strategies: absolute file → relative to working
      * directory → classpath resource (so teammates see images after a git pull).
-     * Demonstrates ABSTRACTION + POLYMORPHISM via the TableCellRenderer interface.
+     * Extends DefaultTableCellRenderer (not JPanel) so the rubber-stamp contract
+     * is respected and images never paint outside their cell bounds.
+     * Demonstrates INHERITANCE + POLYMORPHISM.
      */
-    private static class ImageRenderer extends JPanel implements TableCellRenderer {
+    private static class ImageRenderer extends DefaultTableCellRenderer {
 
         private static final Color[] AVATAR_COLORS = {
             new Color(37,  99,  235), new Color(16,  185, 129),
@@ -368,6 +369,10 @@ public class ProductPanel extends JPanel {
         public Component getTableCellRendererComponent(
                 JTable table, Object value, boolean isSelected,
                 boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setText("");
+            setIcon(null);
+            setHorizontalAlignment(CENTER);
 
             String path     = value != null ? value.toString() : "";
             int    modelRow = table.convertRowIndexToModel(row);
@@ -379,42 +384,39 @@ public class ProductPanel extends JPanel {
                 initial     = name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase();
                 circleColor = AVATAR_COLORS[Math.abs(name.hashCode()) % AVATAR_COLORS.length];
             }
-            setBackground(isSelected
-                    ? table.getSelectionBackground()
-                    : (row % 2 == 0 ? Color.WHITE : new Color(248, 250, 252)));
+            if (!isSelected) {
+                setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 250, 252));
+            }
+            setOpaque(true);
             return this;
         }
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
+            super.paintComponent(g); // paints background colour only (text/icon are cleared)
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,   RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
             int size = Math.min(getWidth(), getHeight()) - 16;
-            int x    = (getWidth()  - size) / 2;
-            int y    = (getHeight() - size) / 2;
+            if (size < 4) { g2.dispose(); return; }
+            int x = (getWidth()  - size) / 2;
+            int y = (getHeight() - size) / 2;
 
             if (cachedIcon != null) {
-                // Clip image to circle
-                Shape clip = new Ellipse2D.Float(x, y, size, size);
-                g2.setClip(clip);
-                g2.drawImage(cachedIcon.getImage(), x, y, size, size, this);
+                // null observer avoids async imageUpdate callbacks that repaint outside the cell
+                g2.setClip(new Ellipse2D.Float(x, y, size, size));
+                g2.drawImage(cachedIcon.getImage(), x, y, size, size, null);
                 g2.setClip(null);
-                // Subtle ring
                 g2.setColor(new Color(0, 0, 0, 20));
                 g2.setStroke(new BasicStroke(1.5f));
                 g2.drawOval(x, y, size - 1, size - 1);
             } else {
-                // Gradient-filled avatar with initial letter
                 g2.setPaint(new GradientPaint(x, y, circleColor.brighter(),
                         x + size, y + size, circleColor.darker()));
                 g2.fillOval(x, y, size, size);
-                // Shine overlay
                 g2.setColor(new Color(255, 255, 255, 55));
                 g2.fillOval(x + 2, y + 2, size - 4, size / 2);
-                // Initial letter
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("Segoe UI", Font.BOLD, size * 4 / 10));
                 FontMetrics fm = g2.getFontMetrics();
@@ -432,21 +434,33 @@ public class ProductPanel extends JPanel {
             File file = new File(clean);
             if (!file.exists()) file = new File(System.getProperty("user.dir"), clean);
             if (file.exists()) {
-                ImageIcon icon = new ImageIcon(file.getAbsolutePath());
-                if (icon.getIconWidth() > 0)
-                    return new ImageIcon(icon.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH));
+                try {
+                    BufferedImage src = ImageIO.read(file);
+                    if (src != null) return new ImageIcon(toScaled(src, w, h));
+                } catch (Exception ignored) {}
             }
 
             String cp = "/" + clean.replace('\\', '/');
             try (InputStream is = ImageRenderer.class.getResourceAsStream(cp)) {
                 if (is != null) {
-                    BufferedImage img = ImageIO.read(is);
-                    if (img != null)
-                        return new ImageIcon(img.getScaledInstance(w, h, Image.SCALE_SMOOTH));
+                    BufferedImage src = ImageIO.read(is);
+                    if (src != null) return new ImageIcon(toScaled(src, w, h));
                 }
             } catch (Exception ignored) {}
 
             return null;
+        }
+
+        // Produces a fully-loaded BufferedImage so drawImage never fires async
+        // imageUpdate callbacks that would cause repaints outside the cell bounds.
+        private static BufferedImage toScaled(BufferedImage src, int w, int h) {
+            BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = out.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.drawImage(src, 0, 0, w, h, null);
+            g2.dispose();
+            return out;
         }
     }
 
