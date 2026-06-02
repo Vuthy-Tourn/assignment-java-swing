@@ -5,6 +5,7 @@ import com.pos.model.OrderItem;
 import com.pos.model.Payment;
 import com.pos.ui.components.RoundedButton;
 import com.pos.ui.components.UIConstants;
+import com.pos.util.ReceiptPdfExporter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -224,11 +225,51 @@ public class ReceiptPanel extends JPanel {
                 )
         );
 
-        RoundedButton pdfBtn =
-                new RoundedButton(
-                        "Download PDF",
-                        RoundedButton.Style.PRIMARY
-                );
+        RoundedButton pdfBtn = new RoundedButton("Download PDF", RoundedButton.Style.PRIMARY);
+
+        pdfBtn.addActionListener(e -> {
+            // Let the user choose where to save
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle("Save Receipt");
+            chooser.setSelectedFile(new java.io.File("receipt_" + order.getReceiptNumber() + ".pdf"));
+            chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+
+            int result = chooser.showSaveDialog(this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                java.io.File file = chooser.getSelectedFile();
+                // Ensure .pdf extension
+                if (!file.getName().toLowerCase().endsWith(".pdf")) {
+                    file = new java.io.File(file.getAbsolutePath() + ".pdf");
+                }
+                final java.io.File dest = file;
+                // Run export off the EDT
+                new SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                        ReceiptPdfExporter.export(order, dest);
+                        return null;
+                    }
+
+                    @Override
+                    protected void done() {
+                        try {
+                            get(); // rethrow any exception
+                            JOptionPane.showMessageDialog(
+                                    ReceiptPanel.this,
+                                    "PDF saved to:\n" + dest.getAbsolutePath(),
+                                    "Success", JOptionPane.INFORMATION_MESSAGE
+                            );
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(
+                                    ReceiptPanel.this,
+                                    "Failed to save PDF:\n" + ex.getMessage(),
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                            );
+                        }
+                    }
+                }.execute();
+            }
+        });
 
         RoundedButton doneBtn =
                 new RoundedButton(

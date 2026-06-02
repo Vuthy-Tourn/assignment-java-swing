@@ -696,7 +696,7 @@ public class ProductPanel extends JPanel {
             JComboBox<Category> cb = new JComboBox<>();
             cb.addItem(null);
             cats.forEach(cb::addItem);
-            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "â€” None â€”" : v.getName()));
+            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "None" : v.getName()));
             if (existing != null && existing.getCategoryId() != null)
                 cats.stream().filter(c -> c.getId().equals(existing.getCategoryId()))
                         .findFirst().ifPresent(cb::setSelectedItem);
@@ -707,7 +707,7 @@ public class ProductPanel extends JPanel {
             JComboBox<Supplier> cb = new JComboBox<>();
             cb.addItem(null);
             sups.forEach(cb::addItem);
-            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "â€” None â€”" : v.getName()));
+            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "None" : v.getName()));
             if (existing != null && existing.getSupplierId() != null)
                 sups.stream().filter(s -> s.getId().equals(existing.getSupplierId()))
                         .findFirst().ifPresent(cb::setSelectedItem);

@@ -98,7 +98,7 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel buildChartRow() {
-        revenueChart  = new LineChartPanel("Revenue â€” Last 7 Days");
+        revenueChart  = new LineChartPanel("Revenue by” Last 7 Days");
         categoryChart = new BarChartPanel("Products by Category");
 
         JPanel row = new JPanel(new GridLayout(1, 2, 16, 0));
