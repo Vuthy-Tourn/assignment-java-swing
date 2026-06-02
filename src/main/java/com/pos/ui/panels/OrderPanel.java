@@ -33,6 +33,7 @@ public class OrderPanel extends JPanel {
         buildUI();
     }
 
+
     private void buildUI() {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
@@ -224,86 +225,22 @@ public class OrderPanel extends JPanel {
             return;
         }
 
+        ReceiptPanel receiptPanel = new ReceiptPanel();
+        receiptPanel.setOrder(order);
+
         JDialog dialog = new JDialog(
                 SwingUtilities.getWindowAncestor(this),
-                "Order Details — " + order.getReceiptNumber(),
+                "Receipt — " + order.getReceiptNumber(),
                 Dialog.ModalityType.APPLICATION_MODAL
         );
 
-        dialog.setLayout(new BorderLayout(0, 8));
+        dialog.setLayout(new BorderLayout());
+        dialog.add(receiptPanel, BorderLayout.CENTER);
 
-        JPanel infoPanel = new JPanel(new GridLayout(4, 2, 8, 4));
-        infoPanel.setBackground(Color.WHITE);
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(16, 16, 8, 16));
-
-        addInfoRow(infoPanel, "Receipt #:", order.getReceiptNumber());
-        addInfoRow(infoPanel, "Date:", order.getCreatedAt() != null ? order.getCreatedAt().toString() : "");
-        addInfoRow(infoPanel, "Cashier:", order.getUserName() != null ? order.getUserName() : "");
-
-        if (order.getPayment() != null) {
-            addInfoRow(
-                    infoPanel,
-                    "Payment:",
-                    order.getPayment().getMethod()
-                            + String.format(
-                            " | Paid: $%.2f | Change: $%.2f",
-                            safeAmount(order.getPayment().getPaidAmount()),
-                            safeAmount(order.getPayment().getChangeAmount())
-                    )
-            );
-        } else {
-            addInfoRow(infoPanel, "Payment:", "No payment found");
-        }
-
-        dialog.add(infoPanel, BorderLayout.NORTH);
-
-        String[] cols = {"Product", "Qty", "Price", "Subtotal"};
-
-        DefaultTableModel model = new DefaultTableModel(cols, 0) {
-            @Override
-            public boolean isCellEditable(int r, int c) {
-                return false;
-            }
-        };
-
-        if (order.getItems() != null) {
-            for (OrderItem item : order.getItems()) {
-                model.addRow(new Object[]{
-                        item.getProductName(),
-                        item.getQuantity(),
-                        String.format("$%.2f", safeAmount(item.getPrice())),
-                        String.format("$%.2f", safeAmount(item.getSubtotal()))
-                });
-            }
-        }
-
-        JTable itemTable = new StyledTable(model);
-
-        JPanel tableWrapper = new JPanel(new BorderLayout());
-        tableWrapper.setBorder(BorderFactory.createEmptyBorder(0, 16, 0, 16));
-        tableWrapper.add(new JScrollPane(itemTable), BorderLayout.CENTER);
-
-        dialog.add(tableWrapper, BorderLayout.CENTER);
-
-        JPanel totals = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 10));
-        totals.setBackground(Color.WHITE);
-
-        totals.add(new JLabel(String.format("Total: $%.2f", safeAmount(order.getTotalAmount()))));
-        totals.add(new JLabel(String.format("Discount: -$%.2f", safeAmount(order.getDiscountAmount()))));
-
-        JLabel finalLbl = new JLabel(String.format("Final: $%.2f", safeAmount(order.getFinalAmount())));
-        finalLbl.setFont(UIConstants.FONT_HEADING);
-        finalLbl.setForeground(UIConstants.ACCENT);
-
-        totals.add(finalLbl);
-
-        dialog.add(totals, BorderLayout.SOUTH);
-
-        dialog.setSize(650, 500);
+        dialog.setSize(600, 800);
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
-
     private void addInfoRow(JPanel panel, String label, String value) {
         JLabel lbl = new JLabel(label);
         lbl.setFont(UIConstants.FONT_BODY);
