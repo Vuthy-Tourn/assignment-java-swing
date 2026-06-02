@@ -98,7 +98,7 @@ public class SettingsPanel extends JPanel {
         c.gridy = row; c.gridx = 0; c.gridwidth = 2;
         JLabel lbl = new JLabel(text);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(UIConstants.ACCENT);
+        lbl.setForeground(UIConstants.TEXT_PRIMARY);
         lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR));
         form.add(lbl, c);
         c.gridwidth = 1;
@@ -133,14 +133,14 @@ public class SettingsPanel extends JPanel {
             s.setStorePhone(storePhoneField.getText().trim());
             s.setStoreAddress(storeAddressField.getText().trim());
             s.setCurrency(currencyField.getText().trim().isEmpty() ? "USD" : currencyField.getText().trim());
-            
+
             // បម្លែងអត្ថបទទៅជាលេខ Decimal សម្រាប់តម្លៃពន្ធ
             String taxText = taxField.getText().trim();
             s.setTaxPercentage(taxText.isEmpty() ? BigDecimal.ZERO : new BigDecimal(taxText));
-            
+
             // 2. ផ្ញើទៅកាន់ Service ដើម្បីធ្វើការ Save និងពិនិត្យ Business Logic (ការពារឈ្មោះទទេរ ឬពន្ធដក)
             settingsService.saveSettings(s);
-            
+
             AppContext.setCurrency(s.getCurrency());
             JOptionPane.showMessageDialog(this, "Settings saved successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException e) {
