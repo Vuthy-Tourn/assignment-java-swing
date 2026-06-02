@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
         addNavItem(panel, "\uD83D\uDCCB", "Orders",   "ORDERS");    // 📋
         if (AppContext.isAdmin()) {
             addNavItem(panel, "\uD83D\uDC65", "Users",    "USERS");     // 👥
-            addNavItem(panel, "\u2699\uFE0F",  "Settings", "SETTINGS"); // ⚙️
+            addNavItem(panel, "\u2699", "Settings", "SETTINGS"); // ⚙
         }
 
         panel.add(Box.createVerticalGlue());
