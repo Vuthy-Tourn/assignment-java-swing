@@ -11,6 +11,7 @@ import java.awt.geom.Path2D;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DashboardPanel extends JPanel {
@@ -140,7 +141,15 @@ public class DashboardPanel extends JPanel {
         ordersCard.setValue(String.valueOf(s.getTotalOrders()));
         revenueCard.setValue(String.format("$%.2f", s.getTodayRevenue()));
         lowStockCard.setValue(String.valueOf(s.getLowStockProducts()));
-        revenueChart.setData(s.getRevenueByDay());
+
+        // Fill all 7 days so the line chart always renders — missing days get $0
+        Map<String, BigDecimal> raw    = s.getRevenueByDay();
+        Map<String, BigDecimal> filled = new LinkedHashMap<>();
+        for (int i = 6; i >= 0; i--) {
+            String date = LocalDate.now().minusDays(i).toString();
+            filled.put(date, raw.getOrDefault(date, BigDecimal.ZERO));
+        }
+        revenueChart.setData(filled);
         categoryChart.setData(s.getProductsByCategory());
     }
 
@@ -445,7 +454,7 @@ public class DashboardPanel extends JPanel {
 
         @Override
         protected void drawChart(Graphics2D g2, int w, int h) {
-            int bottom = 54;
+            int bottom = 72;
             int chartW = w - LEFT - RIGHT;
             int chartH = h - TOP - bottom;
 
@@ -460,7 +469,7 @@ public class DashboardPanel extends JPanel {
             int i     = 0;
 
             for (Map.Entry<String, Integer> e : data.entrySet()) {
-                Color base   = PALETTE[i % PALETTE.length];
+                Color base    = PALETTE[i % PALETTE.length];
                 Color lighter = new Color(
                         Math.min(255, base.getRed()   + 60),
                         Math.min(255, base.getGreen() + 60),
@@ -471,7 +480,7 @@ public class DashboardPanel extends JPanel {
                 int x     = LEFT + gap + i * (barW + gap);
                 int y     = TOP  + chartH - barH;
 
-                // Gradient bar (top = solid, bottom = lighter)
+                // Gradient bar
                 g2.setPaint(new GradientPaint(x, y, base, x, y + barH, lighter));
                 g2.fillRoundRect(x, y, barW, barH, 6, 6);
 
@@ -488,13 +497,16 @@ public class DashboardPanel extends JPanel {
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(val, x + (barW - fm.stringWidth(val)) / 2, y - 5);
 
-                // Category label below axis (truncated)
+                // Category label — rotated 40° so 10 labels don't overlap
                 String lbl = e.getKey();
-                if (lbl.length() > 9) lbl = lbl.substring(0, 8) + "…";
+                if (lbl.length() > 11) lbl = lbl.substring(0, 10) + "…";
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
                 g2.setColor(UIConstants.TEXT_MUTED);
-                int lblX = x + (barW - g2.getFontMetrics().stringWidth(lbl)) / 2;
-                g2.drawString(lbl, lblX, TOP + chartH + 18);
+                Graphics2D gr = (Graphics2D) g2.create();
+                gr.translate(x + barW / 2, TOP + chartH + 10);
+                gr.rotate(Math.toRadians(-40));
+                gr.drawString(lbl, -g2.getFontMetrics().stringWidth(lbl), 0);
+                gr.dispose();
 
                 i++;
             }

@@ -183,8 +183,6 @@ public class ProductPanel extends JPanel {
         table      = new StyledTable(tableModel);
         table.setRowHeight(62);
         table.setAutoCreateRowSorter(true);
-        table.setShowGrid(false);
-        table.setIntercellSpacing(new Dimension(0, 0));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
         table.getColumnModel().getColumn(0).setPreferredWidth(40);
