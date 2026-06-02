@@ -64,7 +64,7 @@ public class LoginDialog extends JDialog {
         c.gridx = 0; c.weightx = 1.0;
 
         JLabel userLabel = new JLabel("Username");
-        userLabel.setFont(UIConstants.FONT_HEADER);
+        userLabel.setFont(UIConstants.FONT_HEADING);
         c.gridy = 0;
         form.add(userLabel, c);
 
@@ -72,13 +72,13 @@ public class LoginDialog extends JDialog {
         usernameField.setFont(UIConstants.FONT_BODY);
         usernameField.setPreferredSize(new Dimension(280, 38));
         usernameField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(4, 10, 4, 10)));
         c.gridy = 1;
         form.add(usernameField, c);
 
         JLabel passLabel = new JLabel("Password");
-        passLabel.setFont(UIConstants.FONT_HEADER);
+        passLabel.setFont(UIConstants.FONT_HEADING);
         c.gridy = 2; c.insets = new Insets(14, 0, 6, 0);
         form.add(passLabel, c);
 
@@ -86,7 +86,7 @@ public class LoginDialog extends JDialog {
         passwordField.setFont(UIConstants.FONT_BODY);
         passwordField.setPreferredSize(new Dimension(280, 38));
         passwordField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(4, 10, 4, 10)));
         c.gridy = 3; c.insets = new Insets(6, 0, 6, 0);
         form.add(passwordField, c);

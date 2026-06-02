@@ -61,14 +61,14 @@ public class PaymentDialog extends JDialog {
 
         // Total due
         JLabel dueLabel = new JLabel("Amount Due");
-        dueLabel.setFont(UIConstants.FONT_HEADER);
+        dueLabel.setFont(UIConstants.FONT_HEADING);
         dueLabel.setForeground(UIConstants.TEXT_MUTED);
         c.gridy = 0;
         body.add(dueLabel, c);
 
         JLabel amountLabel = new JLabel(String.format("$%.2f", finalAmount));
         amountLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
-        amountLabel.setForeground(UIConstants.PRIMARY);
+        amountLabel.setForeground(UIConstants.ACCENT);
         c.gridy = 1;
         body.add(amountLabel, c);
 
@@ -92,7 +92,7 @@ public class PaymentDialog extends JDialog {
         paidAmountField = new JTextField(String.format("%.2f", finalAmount), 12);
         paidAmountField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         paidAmountField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(4, 10, 4, 10)));
         paidAmountField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { calcChange(); }

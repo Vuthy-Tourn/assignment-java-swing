@@ -36,7 +36,7 @@ public class ProductPanel extends JPanel {
     public ProductPanel() {
         this.productService = new ProductService();
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -52,7 +52,7 @@ public class ProductPanel extends JPanel {
         refresh();
     }
 
-    // ── Top bar ──────────────────────────────────────────────────────────────
+    // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private JPanel buildTopBar() {
         JPanel bar = new JPanel(new BorderLayout()) {
@@ -65,7 +65,7 @@ public class ProductPanel extends JPanel {
             }
         };
         bar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(18, 24, 18, 24)));
 
         JPanel left = new JPanel(new GridLayout(2, 1, 0, 4));
@@ -75,7 +75,7 @@ public class ProductPanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(UIConstants.TEXT_PRIMARY);
 
-        countLabel = new JLabel("Loading…");
+        countLabel = new JLabel("Loadingâ€¦");
         countLabel.setFont(UIConstants.FONT_SMALL);
         countLabel.setForeground(UIConstants.TEXT_MUTED);
 
@@ -83,7 +83,7 @@ public class ProductPanel extends JPanel {
         left.add(countLabel);
 
         searchField = new JTextField(22);
-        searchField.putClientProperty("JTextField.placeholderText", "Search name, barcode, category…");
+        searchField.putClientProperty("JTextField.placeholderText", "Search name, barcode, categoryâ€¦");
         searchField.setFont(UIConstants.FONT_BODY);
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(209, 213, 219), 1, true),
@@ -107,12 +107,12 @@ public class ProductPanel extends JPanel {
         return bar;
     }
 
-    // ── Category filter bar ───────────────────────────────────────────────────
+    // â”€â”€ Category filter bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private JPanel buildFilterBar() {
         filterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 10));
         filterBar.setBackground(new Color(250, 251, 253));
-        filterBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER));
+        filterBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR));
         populateFilterBar();
         return filterBar;
     }
@@ -146,8 +146,8 @@ public class ProductPanel extends JPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 if (active) {
-                    g2.setPaint(new GradientPaint(0, 0, UIConstants.PRIMARY,
-                            0, getHeight(), UIConstants.PRIMARY.darker()));
+                    g2.setPaint(new GradientPaint(0, 0, UIConstants.ACCENT,
+                            0, getHeight(), UIConstants.ACCENT.darker()));
                 } else {
                     g2.setColor(Color.WHITE);
                 }
@@ -174,7 +174,7 @@ public class ProductPanel extends JPanel {
         filterBar.add(pill);
     }
 
-    // ── Table area ────────────────────────────────────────────────────────────
+    // â”€â”€ Table area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private JPanel buildTableArea() {
         tableModel = new ProductTableModel();
@@ -193,12 +193,12 @@ public class ProductPanel extends JPanel {
         table.getColumnModel().getColumn(7).setPreferredWidth(80);
         table.getColumnModel().getColumn(8).setPreferredWidth(90);
 
-        // ID — centered
+        // ID â€” centered
         AlternatingRenderer idRenderer = new AlternatingRenderer();
         idRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(0).setCellRenderer(idRenderer);
 
-        // Image — custom circle avatar
+        // Image â€” custom circle avatar
         table.getColumnModel().getColumn(1).setCellRenderer(new ImageRenderer());
 
         // Text columns
@@ -207,10 +207,10 @@ public class ProductPanel extends JPanel {
             table.getColumnModel().getColumn(col).setCellRenderer(textRenderer);
         }
 
-        // Stock — number + progress bar
+        // Stock â€” number + progress bar
         table.getColumnModel().getColumn(7).setCellRenderer(new StockRenderer());
 
-        // Status — pill badge
+        // Status â€” pill badge
         table.getColumnModel().getColumn(8).setCellRenderer(new StatusRenderer());
 
         JPanel card = new JPanel(new BorderLayout());
@@ -224,12 +224,12 @@ public class ProductPanel extends JPanel {
 
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setBorder(BorderFactory.createEmptyBorder(14, 16, 0, 16));
-        wrapper.setBackground(UIConstants.BG_LIGHT);
+        wrapper.setBackground(UIConstants.CONTENT_BG);
         wrapper.add(card, BorderLayout.CENTER);
         return wrapper;
     }
 
-    // ── Action bar ────────────────────────────────────────────────────────────
+    // â”€â”€ Action bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private JPanel buildActionBar() {
         RoundedButton editBtn = new RoundedButton("Edit", RoundedButton.Style.SECONDARY);
@@ -249,13 +249,13 @@ public class ProductPanel extends JPanel {
         });
 
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 12));
-        bar.setBackground(UIConstants.BG_LIGHT);
+        bar.setBackground(UIConstants.CONTENT_BG);
         bar.add(editBtn);
         bar.add(deleteBtn);
         return bar;
     }
 
-    // ── Data helpers ──────────────────────────────────────────────────────────
+    // â”€â”€ Data helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public void refresh() {
         currentProducts = productService.getAll();
@@ -303,7 +303,7 @@ public class ProductPanel extends JPanel {
         for (Product p : products) {
             tableModel.addRow(new Object[]{
                     p.getId(),
-                    p.getImageUrl(),                // path string — ImageRenderer loads & caches it
+                    p.getImageUrl(),                // path string â€” ImageRenderer loads & caches it
                     p.getName(),
                     p.getBarcode()      != null ? p.getBarcode()      : "",
                     p.getCategoryName() != null ? p.getCategoryName() : "",
@@ -323,7 +323,7 @@ public class ProductPanel extends JPanel {
     private static String safeLower(String v) { return v == null ? "" : v.toLowerCase(); }
 
     // =========================================================================
-    // Inner classes — each demonstrates a distinct OOP principle
+    // Inner classes â€” each demonstrates a distinct OOP principle
     // =========================================================================
 
     /**
@@ -344,8 +344,8 @@ public class ProductPanel extends JPanel {
      * Renders the image column as a circular avatar.
      * When a product image is available it is clipped to a circle; otherwise a
      * gradient-filled circle with the product's initial letter is shown.
-     * Supports three path-loading strategies: absolute file → relative to working
-     * directory → classpath resource (so teammates see images after a git pull).
+     * Supports three path-loading strategies: absolute file â†’ relative to working
+     * directory â†’ classpath resource (so teammates see images after a git pull).
      * Extends DefaultTableCellRenderer (not JPanel) so the rubber-stamp contract
      * is respected and images never paint outside their cell bounds.
      * Demonstrates INHERITANCE + POLYMORPHISM.
@@ -379,7 +379,7 @@ public class ProductPanel extends JPanel {
 
             cachedIcon = loadIcon(path, 50, 50);
             if (cachedIcon != null) {
-                setIcon(cachedIcon); // JLabel renders the scaled icon — stays within cell bounds
+                setIcon(cachedIcon); // JLabel renders the scaled icon â€” stays within cell bounds
             } else {
                 setIcon(null);       // paintComponent draws the fallback circle
                 initial     = name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase();
@@ -396,7 +396,7 @@ public class ProductPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); // draws background + icon when icon is set
-            if (cachedIcon != null) return; // JLabel already painted the image — nothing more to do
+            if (cachedIcon != null) return; // JLabel already painted the image â€” nothing more to do
 
             // Fallback: gradient circle with product initial
             Graphics2D g2 = (Graphics2D) g.create();
@@ -458,7 +458,7 @@ public class ProductPanel extends JPanel {
 
     /**
      * Renders the Stock column as a bold number with a colored mini progress bar.
-     * Bar color: red (≤ 5 critical), amber (≤ 20 low), green (> 20 healthy).
+     * Bar color: red (â‰¤ 5 critical), amber (â‰¤ 20 low), green (> 20 healthy).
      * Demonstrates INHERITANCE + POLYMORPHISM: extends DefaultTableCellRenderer,
      * overrides paintComponent() to add custom multi-layer drawing.
      */
@@ -492,14 +492,14 @@ public class ProductPanel extends JPanel {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            // Quantity number — upper half
+            // Quantity number â€” upper half
             String text = String.valueOf(quantity);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
             FontMetrics fm = g2.getFontMetrics();
             g2.setColor(UIConstants.TEXT_PRIMARY);
             g2.drawString(text, (getWidth() - fm.stringWidth(text)) / 2, getHeight() / 2 - 1);
 
-            // Mini bar — lower half
+            // Mini bar â€” lower half
             int barH  = 5;
             int barW  = getWidth() - 24;
             int barX  = 12;
@@ -696,7 +696,7 @@ public class ProductPanel extends JPanel {
             JComboBox<Category> cb = new JComboBox<>();
             cb.addItem(null);
             cats.forEach(cb::addItem);
-            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "— None —" : v.getName()));
+            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "â€” None â€”" : v.getName()));
             if (existing != null && existing.getCategoryId() != null)
                 cats.stream().filter(c -> c.getId().equals(existing.getCategoryId()))
                         .findFirst().ifPresent(cb::setSelectedItem);
@@ -707,7 +707,7 @@ public class ProductPanel extends JPanel {
             JComboBox<Supplier> cb = new JComboBox<>();
             cb.addItem(null);
             sups.forEach(cb::addItem);
-            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "— None —" : v.getName()));
+            cb.setRenderer((l, v, i, s, f) -> new JLabel(v == null ? "â€” None â€”" : v.getName()));
             if (existing != null && existing.getSupplierId() != null)
                 sups.stream().filter(s -> s.getId().equals(existing.getSupplierId()))
                         .findFirst().ifPresent(cb::setSelectedItem);
@@ -764,7 +764,7 @@ public class ProductPanel extends JPanel {
         private JPanel buildButtonPanel() {
             JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
             panel.setBackground(Color.WHITE);
-            panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER));
+            panel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDER_COLOR));
 
             RoundedButton cancelBtn = new RoundedButton("Cancel", RoundedButton.Style.SECONDARY);
             cancelBtn.addActionListener(e -> dispose());

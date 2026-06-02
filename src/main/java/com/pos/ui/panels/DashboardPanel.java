@@ -29,7 +29,7 @@ public class DashboardPanel extends JPanel {
     public DashboardPanel() {
         this.dashboardService = new DashboardService();
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
         refresh();
     }
@@ -43,7 +43,7 @@ public class DashboardPanel extends JPanel {
         JPanel bar = new JPanel(new BorderLayout());
         bar.setBackground(Color.WHITE);
         bar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(16, 24, 16, 24)));
 
         JPanel left = new JPanel(new GridLayout(2, 1, 0, 4));
@@ -71,7 +71,7 @@ public class DashboardPanel extends JPanel {
 
     private JPanel buildContent() {
         JPanel content = new JPanel(new BorderLayout(0, 20));
-        content.setBackground(UIConstants.BG_LIGHT);
+        content.setBackground(UIConstants.CONTENT_BG);
         content.setBorder(BorderFactory.createEmptyBorder(22, 22, 22, 22));
         content.add(buildStatRow(),  BorderLayout.NORTH);
         content.add(buildChartRow(), BorderLayout.CENTER);
@@ -79,7 +79,7 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel buildStatRow() {
-        productsCard = new StatCard("Total Products", "0",     UIConstants.PRIMARY,
+        productsCard = new StatCard("Total Products", "0",     UIConstants.ACCENT,
                 new Color(37,  99, 235), new Color(99, 151, 255), "P");
         ordersCard   = new StatCard("Total Orders",   "0",     UIConstants.SUCCESS,
                 new Color(16, 185, 129), new Color(52, 225, 165), "O");
@@ -89,7 +89,7 @@ public class DashboardPanel extends JPanel {
                 new Color(220, 38,  38), new Color(248, 95,  95), "!");
 
         JPanel row = new JPanel(new GridLayout(1, 4, 16, 0));
-        row.setBackground(UIConstants.BG_LIGHT);
+        row.setBackground(UIConstants.CONTENT_BG);
         row.add(productsCard);
         row.add(ordersCard);
         row.add(revenueCard);
@@ -98,11 +98,11 @@ public class DashboardPanel extends JPanel {
     }
 
     private JPanel buildChartRow() {
-        revenueChart  = new LineChartPanel("Revenue — Last 7 Days");
+        revenueChart  = new LineChartPanel("Revenue â€” Last 7 Days");
         categoryChart = new BarChartPanel("Products by Category");
 
         JPanel row = new JPanel(new GridLayout(1, 2, 16, 0));
-        row.setBackground(UIConstants.BG_LIGHT);
+        row.setBackground(UIConstants.CONTENT_BG);
         row.add(wrapChart(revenueChart));
         row.add(wrapChart(categoryChart));
         return row;
@@ -126,7 +126,7 @@ public class DashboardPanel extends JPanel {
         JPanel inner = new JPanel(new BorderLayout());
         inner.setBackground(Color.WHITE);
         inner.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(18, 18, 18, 18)));
         inner.add(chart, BorderLayout.CENTER);
 
@@ -142,7 +142,7 @@ public class DashboardPanel extends JPanel {
         revenueCard.setValue(String.format("$%.2f", s.getTodayRevenue()));
         lowStockCard.setValue(String.valueOf(s.getLowStockProducts()));
 
-        // Fill all 7 days so the line chart always renders — missing days get $0
+        // Fill all 7 days so the line chart always renders â€” missing days get $0
         Map<String, BigDecimal> raw    = s.getRevenueByDay();
         Map<String, BigDecimal> filled = new LinkedHashMap<>();
         for (int i = 6; i >= 0; i--) {
@@ -178,10 +178,10 @@ public class DashboardPanel extends JPanel {
             setLayout(new BorderLayout(16, 0));
             setBackground(Color.WHITE);
             setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(UIConstants.BORDER),
+                    BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
                     BorderFactory.createEmptyBorder(20, 20, 20, 20)));
 
-            // Gradient icon circle — painted via anonymous JPanel
+            // Gradient icon circle â€” painted via anonymous JPanel
             JPanel circle = new JPanel() {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -385,18 +385,18 @@ public class DashboardPanel extends JPanel {
             fill.closePath();
 
             g2.setPaint(new GradientPaint(0, TOP,
-                    new Color(UIConstants.PRIMARY.getRed(),
-                              UIConstants.PRIMARY.getGreen(),
-                              UIConstants.PRIMARY.getBlue(), 55),
+                    new Color(UIConstants.ACCENT.getRed(),
+                              UIConstants.ACCENT.getGreen(),
+                              UIConstants.ACCENT.getBlue(), 55),
                     0, TOP + chartH,
-                    new Color(UIConstants.PRIMARY.getRed(),
-                              UIConstants.PRIMARY.getGreen(),
-                              UIConstants.PRIMARY.getBlue(), 0)));
+                    new Color(UIConstants.ACCENT.getRed(),
+                              UIConstants.ACCENT.getGreen(),
+                              UIConstants.ACCENT.getBlue(), 0)));
             g2.fill(fill);
 
             // Draw the smooth line
             g2.setPaint(null);
-            g2.setColor(UIConstants.PRIMARY);
+            g2.setColor(UIConstants.ACCENT);
             g2.setStroke(new BasicStroke(2.4f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
             g2.draw(linePath);
             g2.setStroke(new BasicStroke(1f));
@@ -407,14 +407,14 @@ public class DashboardPanel extends JPanel {
                 int mx = Math.round(xs[i]);
                 int my = Math.round(ys[i]);
 
-                g2.setColor(new Color(UIConstants.PRIMARY.getRed(),
-                        UIConstants.PRIMARY.getGreen(), UIConstants.PRIMARY.getBlue(), 25));
+                g2.setColor(new Color(UIConstants.ACCENT.getRed(),
+                        UIConstants.ACCENT.getGreen(), UIConstants.ACCENT.getBlue(), 25));
                 g2.fillOval(mx - 7, my - 7, 15, 15);
 
                 g2.setColor(Color.WHITE);
                 g2.fillOval(mx - 4, my - 4, 9, 9);
 
-                g2.setColor(UIConstants.PRIMARY);
+                g2.setColor(UIConstants.ACCENT);
                 g2.setStroke(new BasicStroke(2f));
                 g2.drawOval(mx - 4, my - 4, 9, 9);
                 g2.setStroke(new BasicStroke(1f));
@@ -497,9 +497,9 @@ public class DashboardPanel extends JPanel {
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(val, x + (barW - fm.stringWidth(val)) / 2, y - 5);
 
-                // Category label — rotated 40° so 10 labels don't overlap
+                // Category label â€” rotated 40Â° so 10 labels don't overlap
                 String lbl = e.getKey();
-                if (lbl.length() > 11) lbl = lbl.substring(0, 10) + "…";
+                if (lbl.length() > 11) lbl = lbl.substring(0, 10) + "â€¦";
                 g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
                 g2.setColor(UIConstants.TEXT_MUTED);
                 Graphics2D gr = (Graphics2D) g2.create();
