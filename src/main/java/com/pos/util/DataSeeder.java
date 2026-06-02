@@ -167,6 +167,12 @@ public class DataSeeder {
         {"Rye Bread Loaf",      "BAK010", "Bakery",       1.20, 2.75,  20},
     };
 
+    public static void main(String[] args) {
+        System.out.println("=== DataSeeder starting ===");
+        int inserted = seed();
+        System.out.println("=== Done — " + inserted + " new products inserted ===");
+    }
+
     /**
      * Runs the seed: downloads real product photos (requires internet on first run),
      * saves them to src/main/resources/images/products/ (committed to git so
@@ -221,15 +227,7 @@ public class DataSeeder {
             double price    = (double)  row[4];
             int    stock    = (int)     row[5];
 
-            try (PreparedStatement ps = conn.prepareStatement(
-                    "SELECT id FROM products WHERE barcode = ?")) {
-                ps.setString(1, barcode);
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) continue; // already exists
-                }
-            }
-
-            // Fetch real image (internet) or fall back to generated placeholder
+            // Always ensure image file exists first (independent of DB state)
             String fileName = slug(name) + ".png";
             File   imgFile  = new File(RESOURCES_DIR, fileName);
             if (!imgFile.exists()) {
@@ -244,6 +242,15 @@ public class DataSeeder {
                 }
             }
             String dbPath = DB_PATH_PREFIX + fileName;
+
+            // Skip DB insert if product already exists
+            try (PreparedStatement ps = conn.prepareStatement(
+                    "SELECT id FROM products WHERE barcode = ?")) {
+                ps.setString(1, barcode);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) continue;
+                }
+            }
 
             long productId;
             try (PreparedStatement ps = conn.prepareStatement(
