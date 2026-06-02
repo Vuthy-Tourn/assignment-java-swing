@@ -131,7 +131,7 @@ public class MainFrame extends JFrame {
 
         // Load logo
         ImageIcon icon = new ImageIcon(
-                Objects.requireNonNull(getClass().getResource("/images/ミニストップ　～街角のあなたの憩いの場～ copy.png"))
+                Objects.requireNonNull(getClass().getResource("/images/logo_pos.png"))
         );
 
         // Resize logo

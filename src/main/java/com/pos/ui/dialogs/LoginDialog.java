@@ -45,7 +45,7 @@ public class LoginDialog extends JDialog {
 
         try {
             String basePath = "src/main/resources/images/";
-            File imageFile = new File(basePath + "side_banner.png");
+            File imageFile = new File(basePath + "Take-Away.png");
 
             if (imageFile.exists()) {
                 ImageIcon originalIcon = new ImageIcon(imageFile.getAbsolutePath());
