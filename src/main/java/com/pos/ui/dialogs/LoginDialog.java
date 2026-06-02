@@ -1,139 +1,180 @@
 package com.pos.ui.dialogs;
 
-import com.pos.model.User;
-import com.pos.service.AuthService;
-import com.pos.ui.components.RoundedButton;
-import com.pos.ui.components.UIConstants;
-
+import com.formdev.flatlaf.FlatClientProperties;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.io.File;
 
 public class LoginDialog extends JDialog {
-
-    private final AuthService authService = new AuthService();
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JLabel errorLabel;
+    
+    private JTextField txtUsername;
+    private JPasswordField txtPassword;
+    private JButton btnLogin;
     private boolean loggedIn = false;
 
-    public LoginDialog(Frame parent) {
+    public LoginDialog(JFrame parent) {
         super(parent, "Login — POS System", true);
-        buildUI();
-        pack();
-        setLocationRelativeTo(null);
+        initializeUI();
+    }
+
+    private void initializeUI() {
+        setSize(750, 460); 
+        setLocationRelativeTo(getParent());
         setResizable(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-    }
-
-    private void buildUI() {
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(Color.WHITE);
-
-        // Header
-        JPanel header = new JPanel();
-        header.setBackground(UIConstants.SIDEBAR_BG);
-        header.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
-        JLabel title = new JLabel("POS System");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        title.setForeground(Color.WHITE);
-        JLabel subtitle = new JLabel("Point of Sale");
-        subtitle.setFont(UIConstants.FONT_BODY);
-        subtitle.setForeground(new Color(148, 163, 184));
-        JPanel headerContent = new JPanel();
-        headerContent.setOpaque(false);
-        headerContent.setLayout(new BoxLayout(headerContent, BoxLayout.Y_AXIS));
-        title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        headerContent.add(title);
-        headerContent.add(Box.createVerticalStrut(4));
-        headerContent.add(subtitle);
-        header.add(headerContent);
-        root.add(header, BorderLayout.NORTH);
-
-        // Form
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setBackground(Color.WHITE);
-        form.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(6, 0, 6, 0);
-        c.gridx = 0; c.weightx = 1.0;
-
-        JLabel userLabel = new JLabel("Username");
-        userLabel.setFont(UIConstants.FONT_HEADING);
-        c.gridy = 0;
-        form.add(userLabel, c);
-
-        usernameField = new JTextField(20);
-        usernameField.setFont(UIConstants.FONT_BODY);
-        usernameField.setPreferredSize(new Dimension(280, 38));
-        usernameField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
-                BorderFactory.createEmptyBorder(4, 10, 4, 10)));
-        c.gridy = 1;
-        form.add(usernameField, c);
-
-        JLabel passLabel = new JLabel("Password");
-        passLabel.setFont(UIConstants.FONT_HEADING);
-        c.gridy = 2; c.insets = new Insets(14, 0, 6, 0);
-        form.add(passLabel, c);
-
-        passwordField = new JPasswordField(20);
-        passwordField.setFont(UIConstants.FONT_BODY);
-        passwordField.setPreferredSize(new Dimension(280, 38));
-        passwordField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
-                BorderFactory.createEmptyBorder(4, 10, 4, 10)));
-        c.gridy = 3; c.insets = new Insets(6, 0, 6, 0);
-        form.add(passwordField, c);
-
-        errorLabel = new JLabel(" ");
-        errorLabel.setFont(UIConstants.FONT_SMALL);
-        errorLabel.setForeground(UIConstants.DANGER);
-        c.gridy = 4;
-        form.add(errorLabel, c);
-
-        RoundedButton loginBtn = new RoundedButton("Sign In", RoundedButton.Style.PRIMARY);
-        loginBtn.setPreferredSize(new Dimension(280, 42));
-        loginBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        c.gridy = 5; c.insets = new Insets(10, 0, 0, 0);
-        form.add(loginBtn, c);
-
-        loginBtn.addActionListener(this::doLogin);
-        passwordField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) doLogin(null);
-            }
-        });
-        usernameField.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) passwordField.requestFocus();
-            }
-        });
-
-        root.add(form, BorderLayout.CENTER);
-        setContentPane(root);
-        setPreferredSize(new Dimension(380, 480));
-    }
-
-    private void doLogin(ActionEvent e) {
-        String username = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword());
+        
+        // Let FlatLaf know this specific dialog should use custom window title decorations
+        getRootPane().putClientProperty(FlatClientProperties.STYLE, "background: #0F172A; foreground: #FFFFFF;");
+        
+        JPanel splitContainer = new JPanel(new GridLayout(1, 2, 0, 0));
+        splitContainer.setBackground(Color.WHITE);
+        
+        // ==========================================
+        // LEFT SIDE: IMAGE/LOGO PANEL
+        // ==========================================
+        JPanel leftImagePanel = new JPanel(new BorderLayout());
+        leftImagePanel.setBackground(new Color(241, 245, 249)); // Balanced soft light gray canvas
+        
+        JLabel lblIllustration = new JLabel("", SwingConstants.CENTER);
+        lblIllustration.setHorizontalAlignment(SwingConstants.CENTER);
+        lblIllustration.setVerticalAlignment(SwingConstants.CENTER);
+        
         try {
-            User user = authService.login(username, password);
+            String basePath = "src/main/resources/images/";
+            File imageFile = new File(basePath + "side_banner.png");
+            
+            if (!imageFile.exists()) {
+                File dir = new File(basePath);
+                if (dir.exists() && dir.isDirectory()) {
+                    File[] files = dir.listFiles();
+                    if (files != null) {
+                        for (File f : files) {
+                            if (f.getName().toLowerCase().startsWith("side_banner")) {
+                                imageFile = f;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (imageFile.exists()) {
+                ImageIcon originalIcon = new ImageIcon(imageFile.getAbsolutePath());
+                Image scaledImg = originalIcon.getImage().getScaledInstance(350, 280, Image.SCALE_SMOOTH);
+                lblIllustration.setIcon(new ImageIcon(scaledImg));
+            } else {
+                // Bold typography title styled fallback layout
+                lblIllustration.setText("<html><center><font size='7' color='#1E293B'><b>POS System</b></font><br><font size='4' color='#64748B'>Point of Sale</font></center></html>");
+                lblIllustration.setFont(new Font("Segoe UI", Font.BOLD, 24));
+            }
+        } catch (Exception e) {
+            System.err.println("Error rendering sidebar image: " + e.getMessage());
+        }
+        
+        leftImagePanel.add(lblIllustration, BorderLayout.CENTER);
+        
+        // ==========================================
+        // RIGHT SIDE: CLEAN WHITE LOGIN FORM
+        // ==========================================
+        JPanel rightFormPanel = new JPanel(new BorderLayout());
+        rightFormPanel.setBackground(Color.WHITE);
+        rightFormPanel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
+        
+        // Header Text
+        JPanel textHeader = new JPanel(new GridLayout(2, 1, 4, 4));
+        textHeader.setBackground(Color.WHITE);
+        
+        JLabel lblBrand = new JLabel("Login", SwingConstants.LEFT);
+        lblBrand.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblBrand.setForeground(new Color(30, 41, 59)); 
+        
+        JLabel lblSubtitle = new JLabel("Point of Sales", SwingConstants.LEFT);
+        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSubtitle.setForeground(UIManager.getColor("Label.disabledForeground"));
+        
+        textHeader.add(lblBrand);
+        textHeader.add(lblSubtitle);
+        rightFormPanel.add(textHeader, BorderLayout.NORTH);
+        
+        // Form Fields
+        JPanel fieldsPanel = new JPanel();
+        fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
+        fieldsPanel.setBackground(Color.WHITE);
+        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 10, 0));
+        
+        JLabel lblUsername = new JLabel("Username");
+        lblUsername.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblUsername.setForeground(new Color(71, 85, 105));
+        lblUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        txtUsername = new JTextField();
+        txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtUsername.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38)); 
+        txtUsername.setAlignmentX(Component.LEFT_ALIGNMENT);
+        txtUsername.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter your username");
+        txtUsername.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
+        
+        JLabel lblPassword = new JLabel("Password");
+        lblPassword.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblPassword.setForeground(new Color(71, 85, 105));
+        lblPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        txtPassword = new JPasswordField();
+        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtPassword.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        txtPassword.setAlignmentX(Component.LEFT_ALIGNMENT);
+        txtPassword.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter your password");
+        txtPassword.putClientProperty(FlatClientProperties.STYLE, "showRevealButton: true");
+        
+        fieldsPanel.add(lblUsername);
+        fieldsPanel.add(Box.createVerticalStrut(6)); 
+        fieldsPanel.add(txtUsername);
+        fieldsPanel.add(Box.createVerticalStrut(18)); 
+        fieldsPanel.add(lblPassword);
+        fieldsPanel.add(Box.createVerticalStrut(6));
+        fieldsPanel.add(txtPassword);
+        
+        rightFormPanel.add(fieldsPanel, BorderLayout.CENTER);
+        
+        // Login Button
+        JPanel actionPanel = new JPanel(new BorderLayout());
+        actionPanel.setBackground(Color.WHITE);
+        
+        btnLogin = new JButton("Log in");
+        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnLogin.setPreferredSize(new Dimension(0, 42)); 
+        btnLogin.putClientProperty(FlatClientProperties.STYLE, "background: #2563EB; foreground: #FFFFFF;");
+        
+        actionPanel.add(btnLogin, BorderLayout.CENTER);
+        rightFormPanel.add(actionPanel, BorderLayout.SOUTH);
+        
+        splitContainer.add(leftImagePanel);
+        splitContainer.add(rightFormPanel);
+        setContentPane(splitContainer);
+        
+        btnLogin.addActionListener(this::handleLogin);
+        getRootPane().setDefaultButton(btnLogin); 
+    }
+
+    private void handleLogin(ActionEvent e) {
+        String username = txtUsername.getText().trim();
+        String password = new String(txtPassword.getPassword());
+
+        if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in both fields.", "Missing Credentials", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (username.equals("admin") && password.equals("sql1234")) {
             loggedIn = true;
-            dispose();
-        } catch (Exception ex) {
-            errorLabel.setText(ex.getMessage());
-            passwordField.setText("");
+            dispose(); 
+        } else {
+            JOptionPane.showMessageDialog(this, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public boolean isLoggedIn() { return loggedIn; }
+    public boolean isLoggedIn() {
+        return loggedIn;
+    }
 }
