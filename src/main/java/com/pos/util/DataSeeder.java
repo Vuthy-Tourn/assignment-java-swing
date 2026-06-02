@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -166,8 +168,10 @@ public class DataSeeder {
     };
 
     /**
-     * Runs the seed: creates images in src/main/resources (committed to git so
-     * teammates get them), then inserts products into the database.
+     * Runs the seed: downloads real product photos (requires internet on first run),
+     * saves them to src/main/resources/images/products/ (committed to git so
+     * teammates get them on pull), then inserts products into the database.
+     * Falls back to generated placeholder images if the network is unavailable.
      *
      * @return number of new products inserted
      */
@@ -225,10 +229,21 @@ public class DataSeeder {
                 }
             }
 
-            // Generate image file; store relative DB path so all teammates can use it
+            // Fetch real image (internet) or fall back to generated placeholder
             String fileName = slug(name) + ".png";
-            generateImage(name, category, new File(RESOURCES_DIR, fileName));
-            String dbPath = DB_PATH_PREFIX + fileName; // e.g. "images/products/coca_cola_330ml.png"
+            File   imgFile  = new File(RESOURCES_DIR, fileName);
+            if (!imgFile.exists()) {
+                System.out.print("  [img] " + name + " ... ");
+                BufferedImage downloaded = downloadImage(toSearchKeyword(name));
+                if (downloaded != null) {
+                    try { ImageIO.write(downloaded, "PNG", imgFile); System.out.println("downloaded"); }
+                    catch (IOException e) { System.out.println("save error — using generated"); generateImage(name, category, imgFile); }
+                } else {
+                    System.out.println("no network — using generated");
+                    generateImage(name, category, imgFile);
+                }
+            }
+            String dbPath = DB_PATH_PREFIX + fileName;
 
             long productId;
             try (PreparedStatement ps = conn.prepareStatement(
@@ -260,6 +275,38 @@ public class DataSeeder {
             count++;
         }
         return count;
+    }
+
+    /**
+     * Downloads a 200×200 photo from loremflickr.com using the product keyword.
+     * Returns null if the network is unavailable or the response is not an image.
+     */
+    private static BufferedImage downloadImage(String keyword) {
+        try {
+            String encoded = keyword.trim().toLowerCase()
+                    .replaceAll("[^a-z0-9 ]", "").trim().replace(" ", ",");
+            URL               url  = new URL("https://loremflickr.com/200/200/" + encoded);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);
+            conn.setConnectTimeout(6_000);
+            conn.setReadTimeout(12_000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+            if (conn.getResponseCode() == 200) {
+                BufferedImage img = ImageIO.read(conn.getInputStream());
+                if (img != null) return img;
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    /** Strips size/quantity tokens so the search keyword stays meaningful. */
+    private static String toSearchKeyword(String name) {
+        String kw = name
+                .replaceAll("(?i)\\s+\\d+\\s*(ml|cl|l|g|kg|cm|m|gb|mah|pcs?|pk|pc)\\b", "")
+                .replaceAll("(?i)\\s+\\d+$", "")
+                .replaceAll("[^a-zA-Z0-9 ]", " ")
+                .replaceAll("\\s+", " ").trim();
+        return kw.isEmpty() ? name : kw;
     }
 
     /** Generates a 200×200 colorful PNG label for a product. */
