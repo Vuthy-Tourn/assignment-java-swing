@@ -1,7 +1,7 @@
 package com.pos.ui.panels;
 
-import com.pos.dao.SettingsDAO;
 import com.pos.model.Settings;
+import com.pos.service.SettingsService; // ប្តូរមកប្រើប្រាស់ Service វិញ
 import com.pos.ui.components.RoundedButton;
 import com.pos.ui.components.UIConstants;
 import com.pos.util.AppContext;
@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 
 public class SettingsPanel extends JPanel {
 
-    private final SettingsDAO settingsDAO = new SettingsDAO();
+    // ប្តូរពី SettingsDAO មកប្រើប្រាស់ SettingsService ដើម្បីភាពត្រឹមត្រូវនៃ Business Logic
+    private final SettingsService settingsService = new SettingsService();
 
     private JTextField storeNameField;
     private JTextField storePhoneField;
@@ -113,13 +114,16 @@ public class SettingsPanel extends JPanel {
         form.add(field, c);
     }
 
-    private void loadSettings() {
-        Settings s = settingsDAO.get();
-        storeNameField.setText(s.getStoreName() != null ? s.getStoreName() : "");
-        storePhoneField.setText(s.getStorePhone() != null ? s.getStorePhone() : "");
-        storeAddressField.setText(s.getStoreAddress() != null ? s.getStoreAddress() : "");
-        currencyField.setText(s.getCurrency() != null ? s.getCurrency() : "USD");
-        taxField.setText(s.getTaxPercentage() != null ? s.getTaxPercentage().toPlainString() : "0");
+    // 1. ប្តូរទៅជា PUBLIC ដើម្បីឱ្យឯកសារ MainFrame.java អាចហៅប្រើបាន
+    public void loadSettings() {
+        Settings s = settingsService.getSettings(); // ហៅតាមរយៈ Service
+        if (s != null) {
+            storeNameField.setText(s.getStoreName() != null ? s.getStoreName() : "");
+            storePhoneField.setText(s.getStorePhone() != null ? s.getStorePhone() : "");
+            storeAddressField.setText(s.getStoreAddress() != null ? s.getStoreAddress() : "");
+            currencyField.setText(s.getCurrency() != null ? s.getCurrency() : "USD");
+            taxField.setText(s.getTaxPercentage() != null ? s.getTaxPercentage().toPlainString() : "0");
+        }
     }
 
     private void saveSettings() {
@@ -129,12 +133,21 @@ public class SettingsPanel extends JPanel {
             s.setStorePhone(storePhoneField.getText().trim());
             s.setStoreAddress(storeAddressField.getText().trim());
             s.setCurrency(currencyField.getText().trim().isEmpty() ? "USD" : currencyField.getText().trim());
-            s.setTaxPercentage(new BigDecimal(taxField.getText().trim()));
-            settingsDAO.save(s);
+            
+            // បម្លែងអត្ថបទទៅជាលេខ Decimal សម្រាប់តម្លៃពន្ធ
+            String taxText = taxField.getText().trim();
+            s.setTaxPercentage(taxText.isEmpty() ? BigDecimal.ZERO : new BigDecimal(taxText));
+            
+            // 2. ផ្ញើទៅកាន់ Service ដើម្បីធ្វើការ Save និងពិនិត្យ Business Logic (ការពារឈ្មោះទទេរ ឬពន្ធដក)
+            settingsService.saveSettings(s);
+            
             AppContext.setCurrency(s.getCurrency());
             JOptionPane.showMessageDialog(this, "Settings saved successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid tax percentage", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Invalid tax percentage format!", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException e) {
+            // ចាប់យកសារព្រមាន (Validation Message) ពីច្បាប់ដែលយើងបង្កើតក្នុង SettingsService
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
