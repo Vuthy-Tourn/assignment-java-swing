@@ -86,4 +86,7 @@ public class OrderService {
         String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         return "RCP-" + date + "-" + String.format("%05d", receiptCounter.incrementAndGet());
     }
+    public Order findByReceiptNumber(String receiptNumber) {
+        return orderDAO.findByReceiptNumber(receiptNumber);
+    }
 }

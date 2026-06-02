@@ -3,6 +3,7 @@ package com.pos.ui.panels;
 import com.pos.model.*;
 import com.pos.service.OrderService;
 import com.pos.service.ProductService;
+import com.pos.ui.MainFrame;
 import com.pos.ui.components.RoundedButton;
 import com.pos.ui.components.StyledTable;
 import com.pos.ui.components.UIConstants;
@@ -357,29 +358,70 @@ public class SalesPanel extends JPanel {
     }
 
     private void checkout() {
+
         if (cartItems.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Cart is empty");
             return;
         }
+
         BigDecimal subtotal = cartItems.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal discount = selectedDiscount != null
-                ? selectedDiscount.calculate(subtotal) : BigDecimal.ZERO;
+                ? selectedDiscount.calculate(subtotal)
+                : BigDecimal.ZERO;
+
         BigDecimal finalAmount = subtotal.subtract(discount);
-        if (finalAmount.compareTo(BigDecimal.ZERO) < 0) finalAmount = BigDecimal.ZERO;
+
+        if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
+            finalAmount = BigDecimal.ZERO;
+        }
 
         PaymentDialog dialog = new PaymentDialog(
                 SwingUtilities.getWindowAncestor(this),
-                finalAmount, cartItems, selectedDiscount, orderService);
+                finalAmount,
+                cartItems,
+                selectedDiscount,
+                orderService
+        );
+
         dialog.setVisible(true);
 
+        // payment success
         if (dialog.isCompleted()) {
-            clearCart();
-            loadProducts(); // refresh stock quantities
-            JOptionPane.showMessageDialog(this,
-                    "Order #" + dialog.getReceiptNumber() + " completed!",
-                    "Sale Complete", JOptionPane.INFORMATION_MESSAGE);
+
+            try {
+
+                // load saved order from DB
+                Order savedOrder =
+                        orderService.findByReceiptNumber(
+                                dialog.getReceiptNumber()
+                        );
+
+                // open receipt panel
+                Window window =
+                        SwingUtilities.getWindowAncestor(this);
+
+                if (window instanceof MainFrame frame
+                        && savedOrder != null) {
+
+                    frame.openReceipt(savedOrder);
+                }
+
+                clearCart();
+                loadProducts();
+
+            } catch (Exception ex) {
+
+                ex.printStackTrace();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Failed to load receipt: "
+                                + ex.getMessage()
+                );
+            }
         }
     }
 
