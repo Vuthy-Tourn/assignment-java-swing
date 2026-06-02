@@ -13,7 +13,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
@@ -180,7 +179,7 @@ public class ProductPanel extends JPanel {
     private JPanel buildTableArea() {
         tableModel = new ProductTableModel();
         table      = new StyledTable(tableModel);
-        table.setRowHeight(62);
+        table.setRowHeight(60);
         table.setAutoCreateRowSorter(true);
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
 
@@ -371,7 +370,6 @@ public class ProductPanel extends JPanel {
                 boolean hasFocus, int row, int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setText("");
-            setIcon(null);
             setHorizontalAlignment(CENTER);
 
             String path     = value != null ? value.toString() : "";
@@ -379,11 +377,15 @@ public class ProductPanel extends JPanel {
             Object nameObj  = table.getModel().getValueAt(modelRow, 2);
             String name     = nameObj != null ? nameObj.toString() : "";
 
-            cachedIcon = loadIcon(path, 44, 44);
-            if (cachedIcon == null) {
+            cachedIcon = loadIcon(path, 50, 50);
+            if (cachedIcon != null) {
+                setIcon(cachedIcon); // JLabel renders the scaled icon — stays within cell bounds
+            } else {
+                setIcon(null);       // paintComponent draws the fallback circle
                 initial     = name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase();
                 circleColor = AVATAR_COLORS[Math.abs(name.hashCode()) % AVATAR_COLORS.length];
             }
+
             if (!isSelected) {
                 setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 250, 252));
             }
@@ -393,37 +395,29 @@ public class ProductPanel extends JPanel {
 
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g); // paints background colour only (text/icon are cleared)
+            super.paintComponent(g); // draws background + icon when icon is set
+            if (cachedIcon != null) return; // JLabel already painted the image — nothing more to do
+
+            // Fallback: gradient circle with product initial
             Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,  RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             int size = Math.min(getWidth(), getHeight()) - 16;
             if (size < 4) { g2.dispose(); return; }
             int x = (getWidth()  - size) / 2;
             int y = (getHeight() - size) / 2;
 
-            if (cachedIcon != null) {
-                // null observer avoids async imageUpdate callbacks that repaint outside the cell
-                g2.setClip(new Ellipse2D.Float(x, y, size, size));
-                g2.drawImage(cachedIcon.getImage(), x, y, size, size, null);
-                g2.setClip(null);
-                g2.setColor(new Color(0, 0, 0, 20));
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawOval(x, y, size - 1, size - 1);
-            } else {
-                g2.setPaint(new GradientPaint(x, y, circleColor.brighter(),
-                        x + size, y + size, circleColor.darker()));
-                g2.fillOval(x, y, size, size);
-                g2.setColor(new Color(255, 255, 255, 55));
-                g2.fillOval(x + 2, y + 2, size - 4, size / 2);
-                g2.setColor(Color.WHITE);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, size * 4 / 10));
-                FontMetrics fm = g2.getFontMetrics();
-                g2.drawString(initial,
-                        x + (size - fm.stringWidth(initial)) / 2,
-                        y + (size + fm.getAscent() - fm.getDescent()) / 2);
-            }
+            g2.setPaint(new GradientPaint(x, y, circleColor.brighter(),
+                    x + size, y + size, circleColor.darker()));
+            g2.fillOval(x, y, size, size);
+            g2.setColor(new Color(255, 255, 255, 55));
+            g2.fillOval(x + 2, y + 2, size - 4, size / 2);
+            g2.setColor(Color.WHITE);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, size * 4 / 10));
+            FontMetrics fm = g2.getFontMetrics();
+            g2.drawString(initial,
+                    x + (size - fm.stringWidth(initial)) / 2,
+                    y + (size + fm.getAscent() - fm.getDescent()) / 2);
             g2.dispose();
         }
 
@@ -451,8 +445,6 @@ public class ProductPanel extends JPanel {
             return null;
         }
 
-        // Produces a fully-loaded BufferedImage so drawImage never fires async
-        // imageUpdate callbacks that would cause repaints outside the cell bounds.
         private static BufferedImage toScaled(BufferedImage src, int w, int h) {
             BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = out.createGraphics();
