@@ -1,5 +1,6 @@
 package com.pos.ui;
 
+import com.pos.model.Order;
 import com.pos.ui.components.UIConstants;
 import com.pos.ui.panels.*;
 import com.pos.util.AppContext;
@@ -28,6 +29,7 @@ public class MainFrame extends JFrame {
     private OrderPanel     orderPanel;
     private UserPanel      userPanel;
     private SettingsPanel  settingsPanel;
+    private ReceiptPanel receiptPanel;
 
     // Unicode icons that render reliably in Segoe UI Symbol / common system fonts
     private static final Font ICON_FONT = new Font("Segoe UI Symbol", Font.PLAIN, 15);
@@ -58,12 +60,14 @@ public class MainFrame extends JFrame {
         userPanel      = new UserPanel();
         settingsPanel  = new SettingsPanel();
         dashboardPanel = new DashboardPanel();
+        receiptPanel   = new ReceiptPanel();
 
         if (AppContext.isAdmin()) contentPanel.add(dashboardPanel, "DASHBOARD");
         contentPanel.add(salesPanel,   "SALES");
         contentPanel.add(productPanel, "PRODUCTS");
         contentPanel.add(stockPanel,   "STOCK");
         contentPanel.add(orderPanel,   "ORDERS");
+        contentPanel.add(receiptPanel, "RECEIPT");
         if (AppContext.isAdmin()) {
             contentPanel.add(userPanel,    "USERS");
             contentPanel.add(settingsPanel,"SETTINGS");
@@ -95,7 +99,7 @@ public class MainFrame extends JFrame {
         addNavItem(panel, "\uD83D\uDCCB", "Orders",   "ORDERS");    // 📋
         if (AppContext.isAdmin()) {
             addNavItem(panel, "\uD83D\uDC65", "Users",    "USERS");     // 👥
-            addNavItem(panel, "\u2699\uFE0F",  "Settings", "SETTINGS"); // ⚙️
+            addNavItem(panel, "\u2699", "Settings", "SETTINGS"); // ⚙
         }
 
         panel.add(Box.createVerticalGlue());
@@ -109,6 +113,12 @@ public class MainFrame extends JFrame {
         panel.add(buildLogoutArea());
         return panel;
     }
+    public void openReceipt(Order order) {
+
+        receiptPanel.setOrder(order);
+
+        cardLayout.show(contentPanel, "RECEIPT");
+    }
 
     // ── Logo area ─────────────────────────────────────────────────────────────
 
@@ -121,7 +131,7 @@ public class MainFrame extends JFrame {
 
         // Load logo
         ImageIcon icon = new ImageIcon(
-                Objects.requireNonNull(getClass().getResource("/images/ミニストップ　～街角のあなたの憩いの場～ copy.png"))
+                Objects.requireNonNull(getClass().getResource("/images/logo_pos.png"))
         );
 
         // Resize logo
