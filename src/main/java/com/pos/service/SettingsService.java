@@ -1,7 +1,9 @@
 package com.pos.service;
 
 import com.pos.dao.SettingsDAO;
+
 import com.pos.model.Settings;
+import java.math.BigDecimal;
 
 public class SettingsService {
     
@@ -11,7 +13,17 @@ public class SettingsService {
     public SettingsService() {
         this.settingsDAO = new SettingsDAO();
     }
+    public static String getSetting(String key, String defaultValue) {
+        Settings settings = new SettingsDAO().get();
+        if (settings == null) return defaultValue;
 
+        if ("tax_rate".equals(key)) {
+            // បម្លែងភាគរយ (ឧ. 5.00) ទៅជាទម្រង់ទសភាគ (0.05) សម្រាប់ការគណនា
+            return settings.getTaxPercentage().divide(new BigDecimal("100")).toString();
+        }
+        
+        return defaultValue;
+    }
     /**
      * Retrieves the current store settings.
      * If no settings exist in the DB, it returns the defaults.
@@ -19,7 +31,7 @@ public class SettingsService {
     public Settings getSettings() {
         return settingsDAO.get();
     }
-
+ 
     /**
      * Saves or updates the store settings after verifying business logic.
      */

@@ -77,7 +77,7 @@ public class OrderPanel extends JPanel {
 
         String[] cols = {
                 "ID", "Receipt #", "Date", "Cashier",
-                "Items", "Total", "Discount", "Final"
+                "Items", "Total", "Discount", "Tax", "Final"
         };
 
         tableModel = new DefaultTableModel(cols, 0) {
@@ -98,6 +98,7 @@ public class OrderPanel extends JPanel {
         table.getColumnModel().getColumn(5).setPreferredWidth(90);
         table.getColumnModel().getColumn(6).setPreferredWidth(90);
         table.getColumnModel().getColumn(7).setPreferredWidth(90);
+        table.getColumnModel().getColumn(8).setPreferredWidth(90);
 
         table.removeColumn(table.getColumnModel().getColumn(0));
 
@@ -184,6 +185,7 @@ public class OrderPanel extends JPanel {
                     o.getItems() != null ? o.getItems().size() : 0,
                     String.format("$%.2f", safeAmount(o.getTotalAmount())),
                     String.format("$%.2f", safeAmount(o.getDiscountAmount())),
+                    String.format("$%.2f", safeAmount(o.getTaxAmount())),
                     String.format("$%.2f", safeAmount(o.getFinalAmount()))
             });
         }

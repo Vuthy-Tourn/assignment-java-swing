@@ -166,7 +166,12 @@ public class ReceiptPanel extends JPanel {
                 "Cashier",
                 order.getUserName()
         );
-
+        addInfoRow(
+                paymentPanel,
+                "tax",
+                order.getTaxAmount() != null ? String.format("$%.2f", order.getTaxAmount()) : "$0.00"
+        		);
+       
         card.add(paymentPanel);
 
         card.add(Box.createVerticalStrut(25));
