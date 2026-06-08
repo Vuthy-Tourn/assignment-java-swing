@@ -38,42 +38,20 @@ public class SalesPanel extends JPanel {
     private JComboBox<Discount> discountCombo;
 
     public SalesPanel() {
-        setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setLayout(new BorderLayout(0, 16));
+        setBackground(UIConstants.CONTENT_BG);
+        setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         buildUI();
     }
 
     private void buildUI() {
-        // Top bar
-        JPanel topBar = new JPanel(new BorderLayout());
-        topBar.setBackground(Color.WHITE);
-        topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
-                BorderFactory.createEmptyBorder(12, 16, 12, 16)));
-        JLabel title = new JLabel("Sales / Checkout");
-        title.setFont(UIConstants.FONT_TITLE);
-        topBar.add(title, BorderLayout.WEST);
+        add(buildTopBar(), BorderLayout.NORTH);
 
-        // Barcode entry on top bar
-        JPanel barcodePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        barcodePanel.setOpaque(false);
-        barcodeField = new JTextField(16);
-        barcodeField.setFont(UIConstants.FONT_BODY);
-        barcodeField.setToolTipText("Scan barcode or type and press Enter");
-        JLabel barcodeLabel = new JLabel("Barcode:");
-        barcodeLabel.setFont(UIConstants.FONT_BODY);
-        barcodePanel.add(barcodeLabel);
-        barcodePanel.add(barcodeField);
-        topBar.add(barcodePanel, BorderLayout.EAST);
-        add(topBar, BorderLayout.NORTH);
-
-        barcodeField.addActionListener(e -> scanBarcode());
-
-        // Main content: left = product browser, right = cart
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        split.setDividerLocation(420);
-        split.setDividerSize(4);
+        split.setDividerLocation(430);
+        split.setDividerSize(8);
         split.setBorder(null);
+        split.setOpaque(false);
 
         split.setLeftComponent(buildProductBrowser());
         split.setRightComponent(buildCartPanel());
@@ -81,31 +59,79 @@ public class SalesPanel extends JPanel {
         add(split, BorderLayout.CENTER);
     }
 
-    private JPanel buildProductBrowser() {
-        JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 8));
+    private JPanel buildTopBar() {
+        JPanel topBar = new JPanel(new BorderLayout(16, 0));
+        topBar.setBackground(UIConstants.CARD_BG);
+        topBar.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(16, 18, 16, 18)
+        ));
 
-        // Search
+        JPanel titlePanel = new JPanel(new GridLayout(2, 1, 0, 2));
+        titlePanel.setOpaque(false);
+
+        JLabel title = new JLabel("Sales / Checkout");
+        title.setFont(UIConstants.FONT_TITLE);
+        title.setForeground(UIConstants.TEXT_PRIMARY);
+
+        JLabel subtitle = new JLabel("Scan barcode, add products, and checkout orders");
+        subtitle.setFont(UIConstants.FONT_SMALL);
+        subtitle.setForeground(UIConstants.TEXT_MUTED);
+
+        titlePanel.add(title);
+        titlePanel.add(subtitle);
+
+        JPanel barcodePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        barcodePanel.setOpaque(false);
+
+        JLabel barcodeLabel = new JLabel("Barcode");
+        barcodeLabel.setFont(UIConstants.FONT_BODY);
+        barcodeLabel.setForeground(UIConstants.TEXT_SECONDARY);
+
+        barcodeField = new JTextField(18);
+        styleTextField(barcodeField, "Scan barcode or press Enter");
+        barcodeField.addActionListener(e -> scanBarcode());
+
+        barcodePanel.add(barcodeLabel);
+        barcodePanel.add(barcodeField);
+
+        topBar.add(titlePanel, BorderLayout.WEST);
+        topBar.add(barcodePanel, BorderLayout.EAST);
+
+        return topBar;
+    }
+
+    private JPanel buildProductBrowser() {
+        JPanel panel = createCardPanel(new BorderLayout(0, 12));
+
+        JLabel title = new JLabel("Products");
+        title.setFont(UIConstants.FONT_HEADING);
+        title.setForeground(UIConstants.TEXT_PRIMARY);
+
         searchField = new JTextField();
-        searchField.setFont(UIConstants.FONT_BODY);
-        searchField.putClientProperty("JTextField.placeholderText", "Search products...");
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
+        styleTextField(searchField, "Search products...");
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filterProducts(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filterProducts(); }
             public void changedUpdate(javax.swing.event.DocumentEvent e) { filterProducts(); }
         });
-        panel.add(searchField, BorderLayout.NORTH);
 
-        // Product list
+        JPanel header = new JPanel(new BorderLayout(0, 10));
+        header.setOpaque(false);
+        header.add(title, BorderLayout.NORTH);
+        header.add(searchField, BorderLayout.CENTER);
+
+        panel.add(header, BorderLayout.NORTH);
+
         productListModel = new DefaultListModel<>();
         productList = new JList<>(productListModel);
         productList.setFont(UIConstants.FONT_BODY);
-        productList.setFixedCellHeight(48);
+        productList.setFixedCellHeight(96);
+        productList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         productList.setCellRenderer(new ProductCellRenderer());
+        productList.setBackground(UIConstants.CARD_BG);
+        productList.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+
         productList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -114,11 +140,15 @@ public class SalesPanel extends JPanel {
         });
 
         JScrollPane scroll = new JScrollPane(productList);
-        scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER));
+        scroll.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER_COLOR));
+        scroll.getViewport().setBackground(UIConstants.CARD_BG);
+
         panel.add(scroll, BorderLayout.CENTER);
 
         RoundedButton addBtn = new RoundedButton("Add to Cart", RoundedButton.Style.SUCCESS);
+        addBtn.setPreferredSize(new Dimension(0, 42));
         addBtn.addActionListener(e -> addToCartSelected());
+
         panel.add(addBtn, BorderLayout.SOUTH);
 
         loadProducts();
@@ -126,39 +156,47 @@ public class SalesPanel extends JPanel {
     }
 
     private JPanel buildCartPanel() {
-        JPanel panel = new JPanel(new BorderLayout(0, 8));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(12, 8, 12, 12));
+        JPanel panel = createCardPanel(new BorderLayout(0, 12));
 
         JLabel cartTitle = new JLabel("Cart");
-        cartTitle.setFont(UIConstants.FONT_HEADER);
+        cartTitle.setFont(UIConstants.FONT_HEADING);
+        cartTitle.setForeground(UIConstants.TEXT_PRIMARY);
+
         panel.add(cartTitle, BorderLayout.NORTH);
 
-        // Cart table
         String[] cols = {"Product", "Qty", "Price", "Subtotal", ""};
         cartModel = new DefaultTableModel(cols, 0) {
             @Override
-            public boolean isCellEditable(int row, int col) { return col == 1; }
+            public boolean isCellEditable(int row, int col) {
+                return col == 1;
+            }
         };
+
         cartTable = new StyledTable(cartModel);
-        cartTable.getColumnModel().getColumn(0).setPreferredWidth(200);
-        cartTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-        cartTable.getColumnModel().getColumn(2).setPreferredWidth(80);
-        cartTable.getColumnModel().getColumn(3).setPreferredWidth(90);
-        cartTable.getColumnModel().getColumn(4).setPreferredWidth(30);
+        cartTable.setRowHeight(38);
+        cartTable.setFont(UIConstants.FONT_BODY);
+        cartTable.getTableHeader().setFont(UIConstants.FONT_SUBHEADING);
+
+        cartTable.getColumnModel().getColumn(0).setPreferredWidth(220);
+        cartTable.getColumnModel().getColumn(1).setPreferredWidth(55);
+        cartTable.getColumnModel().getColumn(2).setPreferredWidth(90);
+        cartTable.getColumnModel().getColumn(3).setPreferredWidth(100);
+        cartTable.getColumnModel().getColumn(4).setPreferredWidth(35);
+
         cartTable.getModel().addTableModelListener(e -> {
             if (e.getColumn() == 1) updateQty(e.getFirstRow());
         });
 
-        // Remove button in last column
         cartTable.getColumnModel().getColumn(4).setCellRenderer((table, value, isSelected, hasFocus, row, col) -> {
             JButton btn = new JButton("×");
-            btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
             btn.setForeground(UIConstants.DANGER);
             btn.setBorderPainted(false);
             btn.setContentAreaFilled(false);
+            btn.setFocusPainted(false);
             return btn;
         });
+
         cartTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -169,55 +207,104 @@ public class SalesPanel extends JPanel {
         });
 
         panel.add(StyledTable.inScrollPane((StyledTable) cartTable), BorderLayout.CENTER);
+        panel.add(buildBottomPanel(), BorderLayout.SOUTH);
 
-        // Totals + discount
-        JPanel bottomPanel = new JPanel(new BorderLayout(0, 8));
+        return panel;
+    }
+
+    private JPanel buildBottomPanel() {
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 12));
         bottomPanel.setOpaque(false);
 
-        // Discount
-        JPanel discountPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 4));
+        JPanel discountPanel = new JPanel(new BorderLayout(8, 0));
         discountPanel.setOpaque(false);
-        discountPanel.add(new JLabel("Discount:  "));
+
+        JLabel discountLabelText = new JLabel("Discount");
+        discountLabelText.setFont(UIConstants.FONT_BODY);
+        discountLabelText.setForeground(UIConstants.TEXT_SECONDARY);
+
         discountCombo = new JComboBox<>();
         discountCombo.setFont(UIConstants.FONT_BODY);
-        discountCombo.setPreferredSize(new Dimension(200, 30));
-        discountCombo.addItem(null); // No discount
+        discountCombo.setPreferredSize(new Dimension(220, 36));
+        discountCombo.addItem(null);
+
         orderService.getActiveDiscounts().forEach(discountCombo::addItem);
+
         discountCombo.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JLabel lbl = new JLabel(value == null ? "— No discount —" : value.toString());
             lbl.setFont(UIConstants.FONT_BODY);
+            lbl.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
             return lbl;
         });
+
         discountCombo.addActionListener(e -> {
             selectedDiscount = (Discount) discountCombo.getSelectedItem();
             updateTotals();
         });
-        discountPanel.add(discountCombo);
-        bottomPanel.add(discountPanel, BorderLayout.NORTH);
 
-        // Summary
-        JPanel summary = new JPanel(new GridLayout(3, 2, 8, 4));
+        discountPanel.add(discountLabelText, BorderLayout.WEST);
+        discountPanel.add(discountCombo, BorderLayout.EAST);
+
+        JPanel summary = new JPanel(new GridLayout(3, 2, 10, 8));
         summary.setOpaque(false);
-        summary.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
-        summary.add(label("Subtotal:"));   subtotalLabel = valueLabel("$0.00"); summary.add(subtotalLabel);
-        summary.add(label("Discount:"));   discountLabel = valueLabel("$0.00"); summary.add(discountLabel);
-        summary.add(totalLbl("Total:"));   totalLabel    = totalValLbl("$0.00"); summary.add(totalLabel);
-        bottomPanel.add(summary, BorderLayout.CENTER);
+        summary.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 1, 0, UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(12, 0, 12, 0)
+        ));
 
-        // Buttons
-        JPanel btnPanel = new JPanel(new GridLayout(1, 2, 8, 0));
+        summary.add(label("Subtotal"));
+        subtotalLabel = valueLabel("$0.00");
+        summary.add(subtotalLabel);
+
+        summary.add(label("Discount"));
+        discountLabel = valueLabel("$0.00");
+        discountLabel.setForeground(UIConstants.DANGER);
+        summary.add(discountLabel);
+
+        summary.add(totalLbl("Total"));
+        totalLabel = totalValLbl("$0.00");
+        summary.add(totalLabel);
+
+        JPanel btnPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         btnPanel.setOpaque(false);
-        RoundedButton clearBtn = new RoundedButton("Clear", RoundedButton.Style.SECONDARY);
+
+        RoundedButton clearBtn = new RoundedButton("Clear Cart", RoundedButton.Style.SECONDARY);
+        clearBtn.setPreferredSize(new Dimension(0, 44));
         clearBtn.addActionListener(e -> clearCart());
+
         RoundedButton checkoutBtn = new RoundedButton("Checkout", RoundedButton.Style.SUCCESS);
+        checkoutBtn.setPreferredSize(new Dimension(0, 44));
         checkoutBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         checkoutBtn.addActionListener(e -> checkout());
+
         btnPanel.add(clearBtn);
         btnPanel.add(checkoutBtn);
+
+        bottomPanel.add(discountPanel, BorderLayout.NORTH);
+        bottomPanel.add(summary, BorderLayout.CENTER);
         bottomPanel.add(btnPanel, BorderLayout.SOUTH);
 
-        panel.add(bottomPanel, BorderLayout.SOUTH);
+        return bottomPanel;
+    }
+
+    private JPanel createCardPanel(LayoutManager layout) {
+        JPanel panel = new JPanel(layout);
+        panel.setBackground(UIConstants.CARD_BG);
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(16, 16, 16, 16)
+        ));
         return panel;
+    }
+
+    private void styleTextField(JTextField field, String placeholder) {
+        field.setFont(UIConstants.FONT_BODY);
+        field.setPreferredSize(new Dimension(0, 38));
+        field.putClientProperty("JTextField.placeholderText", placeholder);
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        ));
     }
 
     private JLabel label(String text) {
@@ -230,19 +317,21 @@ public class SalesPanel extends JPanel {
     private JLabel valueLabel(String text) {
         JLabel l = new JLabel(text, SwingConstants.RIGHT);
         l.setFont(UIConstants.FONT_BODY);
+        l.setForeground(UIConstants.TEXT_SECONDARY);
         return l;
     }
 
     private JLabel totalLbl(String text) {
         JLabel l = new JLabel(text);
-        l.setFont(UIConstants.FONT_HEADER);
+        l.setFont(UIConstants.FONT_HEADING);
+        l.setForeground(UIConstants.TEXT_PRIMARY);
         return l;
     }
 
     private JLabel totalValLbl(String text) {
         JLabel l = new JLabel(text, SwingConstants.RIGHT);
-        l.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        l.setForeground(UIConstants.PRIMARY);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        l.setForeground(UIConstants.ACCENT);
         return l;
     }
 
@@ -254,21 +343,26 @@ public class SalesPanel extends JPanel {
     private void filterProducts() {
         String keyword = searchField.getText().trim();
         productListModel.clear();
+
         List<Product> products = keyword.isEmpty()
                 ? productService.getActive()
                 : productService.search(keyword);
+
         products.forEach(productListModel::addElement);
     }
 
     private void scanBarcode() {
         String barcode = barcodeField.getText().trim();
         if (barcode.isEmpty()) return;
+
         Product p = productService.findByBarcode(barcode);
+
         if (p == null) {
             JOptionPane.showMessageDialog(this, "Product not found: " + barcode);
         } else {
             addToCart(p);
         }
+
         barcodeField.setText("");
         barcodeField.requestFocus();
     }
@@ -280,10 +374,15 @@ public class SalesPanel extends JPanel {
 
     private void addToCart(Product product) {
         if (product.getStockQuantity() != null && product.getStockQuantity() <= 0) {
-            JOptionPane.showMessageDialog(this, "Product is out of stock!", "Stock Empty", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Product is out of stock!",
+                    "Stock Empty",
+                    JOptionPane.WARNING_MESSAGE
+            );
             return;
         }
-        // Check if already in cart
+
         for (int i = 0; i < cartItems.size(); i++) {
             if (cartItems.get(i).getProductId().equals(product.getId())) {
                 int qty = cartItems.get(i).getQuantity() + 1;
@@ -293,6 +392,7 @@ public class SalesPanel extends JPanel {
                 return;
             }
         }
+
         cartItems.add(new OrderItem(product, 1));
         refreshCartTable();
     }
@@ -306,9 +406,12 @@ public class SalesPanel extends JPanel {
 
     private void updateQty(int row) {
         if (row < 0 || row >= cartItems.size()) return;
+
         Object val = cartModel.getValueAt(row, 1);
+
         try {
             int qty = Integer.parseInt(val.toString().trim());
+
             if (qty <= 0) {
                 removeFromCart(row);
             } else {
@@ -323,6 +426,7 @@ public class SalesPanel extends JPanel {
 
     private void refreshCartTable() {
         cartModel.setRowCount(0);
+
         for (OrderItem item : cartItems) {
             cartModel.addRow(new Object[]{
                     item.getProductName(),
@@ -332,6 +436,7 @@ public class SalesPanel extends JPanel {
                     "×"
             });
         }
+
         updateTotals();
     }
 
@@ -339,10 +444,16 @@ public class SalesPanel extends JPanel {
         BigDecimal subtotal = cartItems.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal discount = selectedDiscount != null
-                ? selectedDiscount.calculate(subtotal) : BigDecimal.ZERO;
+                ? selectedDiscount.calculate(subtotal)
+                : BigDecimal.ZERO;
+
         BigDecimal total = subtotal.subtract(discount);
-        if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
+
+        if (total.compareTo(BigDecimal.ZERO) < 0) {
+            total = BigDecimal.ZERO;
+        }
 
         subtotalLabel.setText(String.format("$%.2f", subtotal));
         discountLabel.setText(String.format("-$%.2f", discount));
@@ -361,59 +472,129 @@ public class SalesPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Cart is empty");
             return;
         }
+
         BigDecimal subtotal = cartItems.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         BigDecimal discount = selectedDiscount != null
-                ? selectedDiscount.calculate(subtotal) : BigDecimal.ZERO;
+                ? selectedDiscount.calculate(subtotal)
+                : BigDecimal.ZERO;
+
         BigDecimal finalAmount = subtotal.subtract(discount);
-        if (finalAmount.compareTo(BigDecimal.ZERO) < 0) finalAmount = BigDecimal.ZERO;
+
+        if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
+            finalAmount = BigDecimal.ZERO;
+        }
 
         PaymentDialog dialog = new PaymentDialog(
                 SwingUtilities.getWindowAncestor(this),
-                finalAmount, cartItems, selectedDiscount, orderService);
+                finalAmount,
+                cartItems,
+                selectedDiscount,
+                orderService
+        );
+
         dialog.setVisible(true);
 
         if (dialog.isCompleted()) {
             clearCart();
-            loadProducts(); // refresh stock quantities
-            JOptionPane.showMessageDialog(this,
+            loadProducts();
+
+            JOptionPane.showMessageDialog(
+                    this,
                     "Order #" + dialog.getReceiptNumber() + " completed!",
-                    "Sale Complete", JOptionPane.INFORMATION_MESSAGE);
+                    "Sale Complete",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         }
     }
 
-    // Cell renderer for product list
     private static class ProductCellRenderer extends DefaultListCellRenderer {
+
         @Override
-        public Component getListCellRendererComponent(JList<?> list, Object value,
-                int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value instanceof Product p) {
-                JPanel cell = new JPanel(new BorderLayout(8, 0));
-                cell.setBackground(isSelected ? new Color(219, 234, 254) : Color.WHITE);
-                cell.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
-
-                JLabel name = new JLabel(p.getName());
-                name.setFont(UIConstants.FONT_BODY);
-
-                JPanel right = new JPanel(new GridLayout(2, 1));
-                right.setOpaque(false);
-                JLabel price = new JLabel("$" + p.getSellingPrice(), SwingConstants.RIGHT);
-                price.setFont(UIConstants.FONT_HEADER);
-                price.setForeground(UIConstants.PRIMARY);
-                int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
-                JLabel stock = new JLabel("Stock: " + qty, SwingConstants.RIGHT);
-                stock.setFont(UIConstants.FONT_SMALL);
-                stock.setForeground(qty <= 5 ? UIConstants.DANGER : UIConstants.TEXT_MUTED);
-                right.add(price);
-                right.add(stock);
-
-                cell.add(name, BorderLayout.CENTER);
-                cell.add(right, BorderLayout.EAST);
-                return cell;
+        public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+        ) {
+            if (!(value instanceof Product p)) {
+                return super.getListCellRendererComponent(
+                        list, value, index, isSelected, cellHasFocus
+                );
             }
-            return this;
+
+            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper.setOpaque(false);
+            wrapper.setBorder(BorderFactory.createEmptyBorder(6, 4, 6, 4));
+
+            JPanel card = new JPanel(new BorderLayout(14, 0));
+            card.setBackground(isSelected ? UIConstants.SIDEBAR_ACTIVE : Color.WHITE);
+            card.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(
+                            isSelected ? UIConstants.ACCENT : UIConstants.BORDER_COLOR,
+                            isSelected ? 2 : 1
+                    ),
+                    BorderFactory.createEmptyBorder(10, 12, 10, 12)
+            ));
+
+            JLabel imageLabel = new JLabel();
+            imageLabel.setPreferredSize(new Dimension(66, 66));
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+            imageLabel.setOpaque(true);
+            imageLabel.setBackground(new Color(0xF9FAFB));
+            imageLabel.setBorder(BorderFactory.createLineBorder(UIConstants.BORDER_COLOR));
+
+            if (p.getImageUrl() != null && !p.getImageUrl().isBlank()) {
+                ImageIcon icon = new ImageIcon(p.getImageUrl());
+                Image img = icon.getImage().getScaledInstance(58, 58, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(img));
+            } else {
+                imageLabel.setText("📦");
+                imageLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 28));
+            }
+
+            JLabel name = new JLabel(p.getName());
+            name.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            name.setForeground(UIConstants.TEXT_PRIMARY);
+
+            int qty = p.getStockQuantity() != null ? p.getStockQuantity() : 0;
+
+            JLabel stock = new JLabel("Stock: " + qty);
+            stock.setFont(UIConstants.FONT_SMALL);
+            stock.setForeground(qty <= 5 ? UIConstants.DANGER : UIConstants.TEXT_MUTED);
+
+            JLabel barcode = new JLabel(
+                    p.getBarcode() == null ? "No barcode" : p.getBarcode()
+            );
+            barcode.setFont(UIConstants.FONT_SMALL);
+            barcode.setForeground(UIConstants.TEXT_MUTED);
+
+            JPanel info = new JPanel(new GridLayout(3, 1, 0, 3));
+            info.setOpaque(false);
+            info.add(name);
+            info.add(stock);
+            info.add(barcode);
+
+            JLabel price = new JLabel(String.format("$%.2f", p.getSellingPrice()));
+            price.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            price.setForeground(UIConstants.ACCENT);
+            price.setHorizontalAlignment(SwingConstants.RIGHT);
+
+            JPanel pricePanel = new JPanel(new BorderLayout());
+            pricePanel.setOpaque(false);
+            pricePanel.setPreferredSize(new Dimension(90, 0));
+            pricePanel.add(price, BorderLayout.CENTER);
+
+            card.add(imageLabel, BorderLayout.WEST);
+            card.add(info, BorderLayout.CENTER);
+            card.add(pricePanel, BorderLayout.EAST);
+
+            wrapper.add(card, BorderLayout.CENTER);
+            return wrapper;
         }
     }
 }

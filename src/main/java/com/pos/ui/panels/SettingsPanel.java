@@ -1,7 +1,7 @@
 package com.pos.ui.panels;
 
+import com.pos.dao.SettingsDAO;
 import com.pos.model.Settings;
-import com.pos.service.SettingsService; // ប្តូរមកប្រើប្រាស់ Service វិញ
 import com.pos.ui.components.RoundedButton;
 import com.pos.ui.components.UIConstants;
 import com.pos.util.AppContext;
@@ -12,8 +12,7 @@ import java.math.BigDecimal;
 
 public class SettingsPanel extends JPanel {
 
-    // ប្តូរពី SettingsDAO មកប្រើប្រាស់ SettingsService ដើម្បីភាពត្រឹមត្រូវនៃ Business Logic
-    private final SettingsService settingsService = new SettingsService();
+    private final SettingsDAO settingsDAO = new SettingsDAO();
 
     private JTextField storeNameField;
     private JTextField storePhoneField;
@@ -23,133 +22,291 @@ public class SettingsPanel extends JPanel {
 
     public SettingsPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
     private void buildUI() {
+
+        // ================= TOP BAR =================
+
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
-                BorderFactory.createEmptyBorder(12, 16, 12, 16)));
+                BorderFactory.createMatteBorder(
+                        0, 0, 1, 0,
+                        UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(
+                        14, 20, 14, 20)));
+
         JLabel title = new JLabel("Settings");
         title.setFont(UIConstants.FONT_TITLE);
+
         topBar.add(title, BorderLayout.WEST);
+
         add(topBar, BorderLayout.NORTH);
 
-        JPanel formCard = new JPanel(new GridBagLayout());
-        formCard.setBackground(Color.WHITE);
-        formCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
-                BorderFactory.createEmptyBorder(24, 28, 24, 28)));
+        // ================= FORM CARD =================
 
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(8, 4, 8, 4);
-        c.weightx = 1.0;
+        JPanel formCard = createFormCard();
 
-        storeNameField    = field();
-        storePhoneField   = field();
-        storeAddressField = field();
-        currencyField     = field();
-        taxField          = field();
+        // ================= CONTENT =================
 
-        int row = 0;
-        addSection(formCard, c, row++, "Store Information");
-        addRow(formCard, c, row++, "Store Name", storeNameField);
-        addRow(formCard, c, row++, "Phone", storePhoneField);
-        addRow(formCard, c, row++, "Address", storeAddressField);
-        addSection(formCard, c, row++, "Financial");
-        addRow(formCard, c, row++, "Currency", currencyField);
-        addRow(formCard, c, row, "Tax %", taxField);
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(UIConstants.CONTENT_BG);
+
+        JPanel leftWrapper = new JPanel(new FlowLayout(
+                FlowLayout.LEFT,
+                30,
+                25));
+
+        leftWrapper.setOpaque(false);
+
+        leftWrapper.add(formCard);
+
+        contentPanel.add(leftWrapper, BorderLayout.NORTH);
+
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+
+        scrollPane.setBorder(null);
+        scrollPane.getViewport()
+                .setBackground(UIConstants.CONTENT_BG);
+
+        scrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        add(scrollPane, BorderLayout.CENTER);
 
         loadSettings();
+    }
+    private JPanel createFormCard() {
 
-        JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        wrapper.setBackground(UIConstants.BG_LIGHT);
-        wrapper.setBorder(BorderFactory.createEmptyBorder(24, 0, 0, 0));
-        formCard.setMaximumSize(new Dimension(500, 500));
-        JPanel sized = new JPanel(new BorderLayout());
-        sized.setBackground(UIConstants.BG_LIGHT);
-        sized.setBorder(BorderFactory.createEmptyBorder(24, 80, 0, 80));
-        sized.add(formCard, BorderLayout.CENTER);
-        add(sized, BorderLayout.CENTER);
+        JPanel card = new JPanel(new GridBagLayout());
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
-        btnPanel.setBackground(UIConstants.BG_LIGHT);
-        RoundedButton saveBtn = new RoundedButton("Save Settings", RoundedButton.Style.SUCCESS);
-        saveBtn.setPreferredSize(new Dimension(180, 38));
-        saveBtn.addActionListener(e -> saveSettings());
-        btnPanel.add(saveBtn);
-        add(btnPanel, BorderLayout.SOUTH);
+        card.setBackground(Color.WHITE);
+
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(
+                        UIConstants.BORDER_COLOR),
+                BorderFactory.createEmptyBorder(
+                        25, 30, 25, 30)));
+
+        card.setMaximumSize(
+                new Dimension(650, Integer.MAX_VALUE));
+
+        card.setPreferredSize(
+                new Dimension(650, 400));
+
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(8, 5, 8, 5);
+
+        storeNameField = field();
+        storePhoneField = field();
+        storeAddressField = field();
+        currencyField = field();
+        taxField = field();
+
+        int row = 0;
+
+        addSection(card, c, row++, "Store Information");
+
+        addRow(card, c, row++,
+                "Store Name",
+                storeNameField);
+
+        addRow(card, c, row++,
+                "Phone",
+                storePhoneField);
+
+        addRow(card, c, row++,
+                "Address",
+                storeAddressField);
+
+        addSection(card, c, row++,
+                "Financial Settings");
+
+        addRow(card, c, row++,
+                "Currency",
+                currencyField);
+
+        addRow(card, c, row++,
+                "Tax %",
+                taxField);
+
+        c.gridy = row++;
+        c.gridx = 0;
+        c.gridwidth = 2;
+        c.insets = new Insets(20, 0, 0, 0);
+
+        JPanel buttonPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.CENTER));
+
+        buttonPanel.setOpaque(false);
+
+        RoundedButton saveButton =
+                new RoundedButton(
+                        "Save Settings",
+                        RoundedButton.Style.SUCCESS);
+
+        saveButton.setPreferredSize(
+                new Dimension(180, 30));
+
+        saveButton.addActionListener(
+                e -> saveSettings());
+
+        buttonPanel.add(saveButton);
+
+        card.add(buttonPanel, c);
+
+        return card;
     }
 
     private JTextField field() {
-        JTextField f = new JTextField(24);
-        f.setFont(UIConstants.FONT_BODY);
-        f.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(UIConstants.BORDER),
-                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
-        return f;
+
+        JTextField field =
+                new JTextField();
+
+        field.setFont(UIConstants.FONT_BODY);
+
+        field.setPreferredSize(
+                new Dimension(250, 36));
+
+        field.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                UIConstants.BORDER_COLOR),
+                        BorderFactory.createEmptyBorder(
+                                6, 10, 6, 10)));
+
+        return field;
     }
 
-    private void addSection(JPanel form, GridBagConstraints c, int row, String text) {
-        c.gridy = row; c.gridx = 0; c.gridwidth = 2;
-        JLabel lbl = new JLabel(text);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lbl.setForeground(UIConstants.PRIMARY);
-        lbl.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER));
-        form.add(lbl, c);
+    private void addSection(
+            JPanel form,
+            GridBagConstraints c,
+            int row,
+            String title) {
+
+        c.gridx = 0;
+        c.gridy = row;
+        c.gridwidth = 2;
+
+        JLabel label = new JLabel(title);
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        14));
+
+        label.setForeground(
+                UIConstants.ACCENT);
+
+        form.add(label, c);
+
         c.gridwidth = 1;
     }
 
-    private void addRow(JPanel form, GridBagConstraints c, int row, String label, JComponent field) {
-        c.gridy = row; c.gridx = 0; c.weightx = 0;
-        JLabel lbl = new JLabel(label + ":");
-        lbl.setFont(UIConstants.FONT_BODY);
-        lbl.setPreferredSize(new Dimension(120, 32));
-        form.add(lbl, c);
-        c.gridx = 1; c.weightx = 1.0;
+    private void addRow(
+            JPanel form,
+            GridBagConstraints c,
+            int row,
+            String text,
+            JComponent field) {
+
+        c.gridy = row;
+
+        c.gridx = 0;
+        c.weightx = 0;
+
+        JLabel label =
+                new JLabel(text + ":");
+
+        label.setPreferredSize(
+                new Dimension(120, 32));
+
+        form.add(label, c);
+
+        c.gridx = 1;
+        c.weightx = 1.0;
+
         form.add(field, c);
     }
 
-    // 1. ប្តូរទៅជា PUBLIC ដើម្បីឱ្យឯកសារ MainFrame.java អាចហៅប្រើបាន
-    public void loadSettings() {
-        Settings s = settingsService.getSettings(); // ហៅតាមរយៈ Service
-        if (s != null) {
-            storeNameField.setText(s.getStoreName() != null ? s.getStoreName() : "");
-            storePhoneField.setText(s.getStorePhone() != null ? s.getStorePhone() : "");
-            storeAddressField.setText(s.getStoreAddress() != null ? s.getStoreAddress() : "");
-            currencyField.setText(s.getCurrency() != null ? s.getCurrency() : "USD");
-            taxField.setText(s.getTaxPercentage() != null ? s.getTaxPercentage().toPlainString() : "0");
-        }
+    private void loadSettings() {
+
+        Settings s = settingsDAO.get();
+
+        storeNameField.setText(
+                s.getStoreName() == null
+                        ? ""
+                        : s.getStoreName());
+
+        storePhoneField.setText(
+                s.getStorePhone() == null
+                        ? ""
+                        : s.getStorePhone());
+
+        storeAddressField.setText(
+                s.getStoreAddress() == null
+                        ? ""
+                        : s.getStoreAddress());
+
+        currencyField.setText(
+                s.getCurrency() == null
+                        ? "USD"
+                        : s.getCurrency());
+
+        taxField.setText(
+                s.getTaxPercentage() == null
+                        ? "0"
+                        : s.getTaxPercentage().toPlainString());
     }
 
     private void saveSettings() {
+
         try {
-            Settings s = new Settings();
-            s.setStoreName(storeNameField.getText().trim());
-            s.setStorePhone(storePhoneField.getText().trim());
-            s.setStoreAddress(storeAddressField.getText().trim());
-            s.setCurrency(currencyField.getText().trim().isEmpty() ? "USD" : currencyField.getText().trim());
-            
-            // បម្លែងអត្ថបទទៅជាលេខ Decimal សម្រាប់តម្លៃពន្ធ
-            String taxText = taxField.getText().trim();
-            s.setTaxPercentage(taxText.isEmpty() ? BigDecimal.ZERO : new BigDecimal(taxText));
-            
-            // 2. ផ្ញើទៅកាន់ Service ដើម្បីធ្វើការ Save និងពិនិត្យ Business Logic (ការពារឈ្មោះទទេរ ឬពន្ធដក)
-            settingsService.saveSettings(s);
-            
-            AppContext.setCurrency(s.getCurrency());
-            JOptionPane.showMessageDialog(this, "Settings saved successfully!", "Saved", JOptionPane.INFORMATION_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid tax percentage format!", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (IllegalArgumentException e) {
-            // ចាប់យកសារព្រមាន (Validation Message) ពីច្បាប់ដែលយើងបង្កើតក្នុង SettingsService
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Validation Error", JOptionPane.WARNING_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            Settings settings =
+                    new Settings();
+
+            settings.setStoreName(
+                    storeNameField.getText().trim());
+
+            settings.setStorePhone(
+                    storePhoneField.getText().trim());
+
+            settings.setStoreAddress(
+                    storeAddressField.getText().trim());
+
+            settings.setCurrency(
+                    currencyField.getText().trim());
+
+            settings.setTaxPercentage(
+                    new BigDecimal(
+                            taxField.getText().trim()));
+
+            settingsDAO.save(settings);
+
+            AppContext.setCurrency(
+                    settings.getCurrency());
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Settings saved successfully!");
+
+        } catch (Exception ex) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
+
 }

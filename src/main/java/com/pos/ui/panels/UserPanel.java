@@ -22,7 +22,7 @@ public class UserPanel extends JPanel {
 
     public UserPanel() {
         setLayout(new BorderLayout());
-        setBackground(UIConstants.BG_LIGHT);
+        setBackground(UIConstants.CONTENT_BG);
         buildUI();
     }
 
@@ -30,7 +30,7 @@ public class UserPanel extends JPanel {
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(Color.WHITE);
         topBar.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 16, 12, 16)));
 
         JLabel title = new JLabel("User Management");
@@ -55,12 +55,12 @@ public class UserPanel extends JPanel {
 
         JPanel tableWrapper = new JPanel(new BorderLayout());
         tableWrapper.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
-        tableWrapper.setBackground(UIConstants.BG_LIGHT);
+        tableWrapper.setBackground(UIConstants.CONTENT_BG);
         tableWrapper.add(StyledTable.inScrollPane((StyledTable) table), BorderLayout.CENTER);
         add(tableWrapper, BorderLayout.CENTER);
 
         JPanel actionBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
-        actionBar.setBackground(UIConstants.BG_LIGHT);
+        actionBar.setBackground(UIConstants.CONTENT_BG);
 
         RoundedButton editBtn = new RoundedButton("Edit", RoundedButton.Style.SECONDARY);
         editBtn.addActionListener(e -> {

@@ -196,4 +196,59 @@ public class OrderDAO {
         if (ts != null) o.setCreatedAt(ts.toLocalDateTime());
         return o;
     }
+    public Order findByReceiptNumber(String receiptNumber) {
+
+        String sql = """
+        SELECT o.*, u.full_name AS user_name
+        FROM orders o
+        LEFT JOIN users u
+        ON o.user_id = u.id
+        WHERE o.receipt_number = ?
+        """;
+
+        try (
+                Connection conn =
+                        DatabaseConnection.getConnection();
+
+                PreparedStatement ps =
+                        conn.prepareStatement(sql)
+        ) {
+
+            ps.setString(1, receiptNumber);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    Order order =
+                            mapOrderRow(rs);
+
+                    order.setItems(
+                            findItemsByOrderId(
+                                    conn,
+                                    order.getId()
+                            )
+                    );
+
+                    order.setPayment(
+                            findPaymentByOrderId(
+                                    conn,
+                                    order.getId()
+                            )
+                    );
+
+                    return order;
+                }
+            }
+
+        } catch (SQLException e) {
+
+            throw new RuntimeException(
+                    "Error finding receipt",
+                    e
+            );
+        }
+
+        return null;
+    }
 }
