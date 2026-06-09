@@ -17,17 +17,20 @@ public class OrderDAO {
                 // Insert order
                 String orderSql = """
                     INSERT INTO orders (user_id, total_amount, discount_amount, discount_id,
-                        final_amount, receipt_number, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())
+                        final_amount, receipt_number, tax_amount, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
                     """;
                 try (PreparedStatement ps = conn.prepareStatement(orderSql, Statement.RETURN_GENERATED_KEYS)) {
                     ps.setLong(1, order.getUserId());
                     ps.setBigDecimal(2, order.getTotalAmount());
                     ps.setBigDecimal(3, order.getDiscountAmount());
+                    
                     if (order.getDiscountId() != null) ps.setLong(4, order.getDiscountId());
                     else ps.setNull(4, Types.BIGINT);
+                    
                     ps.setBigDecimal(5, order.getFinalAmount());
                     ps.setString(6, order.getReceiptNumber());
+                    ps.setBigDecimal(7, order.getTaxAmount());
                     ps.executeUpdate();
                     try (ResultSet keys = ps.getGeneratedKeys()) {
                         if (keys.next()) order.setId(keys.getLong(1));
@@ -190,6 +193,7 @@ public class OrderDAO {
         o.setUserName(rs.getString("user_name"));
         o.setTotalAmount(rs.getBigDecimal("total_amount"));
         o.setDiscountAmount(rs.getBigDecimal("discount_amount"));
+        o.setTaxAmount(rs.getBigDecimal("tax_amount"));
         o.setFinalAmount(rs.getBigDecimal("final_amount"));
         o.setReceiptNumber(rs.getString("receipt_number"));
         Timestamp ts = rs.getTimestamp("created_at");
