@@ -1,13 +1,15 @@
 package com.pos.ui.panels;
 
 import com.pos.model.*;
+
 import com.pos.service.OrderService;
 import com.pos.service.ProductService;
+import com.pos.service.SettingsService;
 import com.pos.ui.components.RoundedButton;
 import com.pos.ui.components.StyledTable;
 import com.pos.ui.components.UIConstants;
 import com.pos.ui.dialogs.PaymentDialog;
-
+import java.math.RoundingMode;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -32,6 +34,7 @@ public class SalesPanel extends JPanel {
 
     private JLabel subtotalLabel;
     private JLabel discountLabel;
+    private JLabel taxLabel;
     private JLabel totalLabel;
 
     private Discount selectedDiscount;
@@ -251,7 +254,10 @@ public class SalesPanel extends JPanel {
                 BorderFactory.createMatteBorder(1, 0, 1, 0, UIConstants.BORDER_COLOR),
                 BorderFactory.createEmptyBorder(12, 0, 12, 0)
         ));
-
+        summary.add(label("Tax")); 
+        taxLabel = valueLabel("$0.00"); 
+        summary.add(taxLabel);
+        
         summary.add(label("Subtotal"));
         subtotalLabel = valueLabel("$0.00");
         summary.add(subtotalLabel);
@@ -448,15 +454,20 @@ public class SalesPanel extends JPanel {
         BigDecimal discount = selectedDiscount != null
                 ? selectedDiscount.calculate(subtotal)
                 : BigDecimal.ZERO;
-
-        BigDecimal total = subtotal.subtract(discount);
+        String taxRateStr = SettingsService.getSetting("tax_rate", "0.00");
+        BigDecimal taxRate = new BigDecimal(taxRateStr);
+        BigDecimal discountedTotal = subtotal.subtract(discount);
+        BigDecimal tax = discountedTotal.multiply(taxRate).setScale(2, java.math.RoundingMode.HALF_UP);
+        BigDecimal total = discountedTotal.add(tax);
 
         if (total.compareTo(BigDecimal.ZERO) < 0) {
             total = BigDecimal.ZERO;
         }
 
+
         subtotalLabel.setText(String.format("$%.2f", subtotal));
         discountLabel.setText(String.format("-$%.2f", discount));
+        taxLabel.setText(String.format("$%.2f", tax));     
         totalLabel.setText(String.format("$%.2f", total));
     }
 
@@ -480,13 +491,14 @@ public class SalesPanel extends JPanel {
         BigDecimal discount = selectedDiscount != null
                 ? selectedDiscount.calculate(subtotal)
                 : BigDecimal.ZERO;
-
-        BigDecimal finalAmount = subtotal.subtract(discount);
+        BigDecimal taxRate = new BigDecimal(SettingsService.getSetting("tax_rate", "0.00"));
+        BigDecimal discountedTotal = subtotal.subtract(discount);
+        BigDecimal tax = discountedTotal.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal finalAmount = discountedTotal.add(tax);
 
         if (finalAmount.compareTo(BigDecimal.ZERO) < 0) {
             finalAmount = BigDecimal.ZERO;
         }
-
         PaymentDialog dialog = new PaymentDialog(
                 SwingUtilities.getWindowAncestor(this),
                 finalAmount,

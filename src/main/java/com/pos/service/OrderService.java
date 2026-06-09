@@ -4,7 +4,7 @@ import com.pos.dao.DiscountDAO;
 import com.pos.dao.OrderDAO;
 import com.pos.model.*;
 import com.pos.util.AppContext;
-
+import java.math.RoundingMode;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -49,8 +49,11 @@ public class OrderService {
             order.setDiscountName(discount.getName());
         }
         order.setDiscountAmount(discountAmt);
-
-        BigDecimal finalAmount = total.subtract(discountAmt);
+        BigDecimal taxRate = new BigDecimal(SettingsService.getSetting("tax_rate", "0.00"));
+        BigDecimal discountedTotal = total.subtract(discountAmt);
+        BigDecimal taxAmount = discountedTotal.multiply(taxRate).setScale(2, RoundingMode.HALF_UP);
+        order.setTaxAmount(taxAmount);
+        BigDecimal finalAmount = discountedTotal.add(taxAmount);
         if (finalAmount.compareTo(BigDecimal.ZERO) < 0) finalAmount = BigDecimal.ZERO;
         order.setFinalAmount(finalAmount);
 

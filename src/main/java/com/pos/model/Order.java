@@ -13,6 +13,7 @@ public class Order {
     private BigDecimal discountAmount;
     private Long discountId;
     private String discountName;
+    private BigDecimal taxAmount = BigDecimal.ZERO;
     private BigDecimal finalAmount;
     private String receiptNumber;
     private LocalDateTime createdAt;
@@ -35,6 +36,8 @@ public class Order {
     public void setDiscountId(Long discountId) { this.discountId = discountId; }
     public String getDiscountName() { return discountName; }
     public void setDiscountName(String discountName) { this.discountName = discountName; }
+    public BigDecimal getTaxAmount() {  return taxAmount; }
+    public void setTaxAmount(BigDecimal taxAmount) {   this.taxAmount = taxAmount;  }
     public BigDecimal getFinalAmount() { return finalAmount; }
     public void setFinalAmount(BigDecimal finalAmount) { this.finalAmount = finalAmount; }
     public String getReceiptNumber() { return receiptNumber; }
